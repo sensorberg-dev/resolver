@@ -1,0 +1,53 @@
+{
+  "properties": {
+    "body": {
+      "type": "string"
+    },
+    "delay": {
+      "type": "long"
+    },
+    "delayTime": {
+      "type": "long"
+    },
+    "deliverAt": {
+      "type": "date",
+      "format": "dateOptionalTime"
+    },
+    "timeframes": {
+      "properties": {
+        "end": {
+          "type": "date",
+          "format": "dateOptionalTime"
+        },
+        "start": {
+          "type": "date",
+          "format": "dateOptionalTime"
+        }
+      }
+    },
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "suppressionTime": {
+      "type": "long"
+    },
+    "triggerEntry": {
+      "type": "boolean"
+    },
+    "triggerExit": {
+      "type": "boolean"
+    },
+    "type": {
+      "type": "long"
+    },
+    "url": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,61 @@
+apply plugin: 'groovy'
+apply plugin: 'spring-boot'
+
+buildscript {
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.2.2.RELEASE'
+        classpath 'org.springframework:springloaded:1.2.1.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+
+repositories {
+    maven {
+        url 'https://nexus.codehaus.org/content/repositories/snapshots'
+    }
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
+    mavenCentral()
+}
+
+try {
+    ext.branch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+    ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
+} catch (e) {
+    ext.branch = 'unknown'
+    ext.hash = 'unknown'
+}
+
+jar {
+    manifest {
+        attributes("Implementation-Version": "$branch:$hash")
+    }
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.4.3'
+    compile 'org.springframework.boot:spring-boot-starter-web:1.2.2.RELEASE'
+    compile 'org.springframework:spring-context:4.1.5.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-actuator'
+    compile 'org.springframework.boot:spring-boot-starter-aop'
+    compile 'com.fasterxml.jackson.core:jackson-databind:+'
+
+    compile ('org.elasticsearch:elasticsearch-groovy:1.4.4') {
+        exclude module: "groovy-all"
+    }
+    compile 'org.apache.commons:commons-lang3:3.3.2'
+    compile 'com.vividsolutions:jts:1.11'
+
+    //
+    compile 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
+    compile 'mysql:mysql-connector-java:5.1.34'
+    //
+    testCompile ('org.spockframework:spock-core:1.0-groovy-2.4') {
+        exclude module: "groovy"
+    }
+    testCompile 'org.springframework.boot:spring-boot-starter-test:1.2.2.RELEASE'
+    testCompile 'org.spockframework:spock-spring:1.0-groovy-2.4'
+}

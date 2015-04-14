@@ -1,0 +1,13 @@
+{
+  "properties": {
+    "tillVersionId": {
+      "type": "long"
+    },
+    "synchronizationDate": {
+      "type": "date"
+    },
+    "status": {
+      "type": "boolean"
+    }
+  }
+}

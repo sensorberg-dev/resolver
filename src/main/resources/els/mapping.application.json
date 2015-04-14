@@ -1,0 +1,7 @@
+{
+  "properties": {
+    "beacons": {
+      "type": "long"
+    }
+  }
+}
