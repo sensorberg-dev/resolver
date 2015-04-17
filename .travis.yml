@@ -1,5 +1,8 @@
 language: groovy
 
+jdk:
+  - oraclejdk8
+
 notifications:
   slack: sensorberg:bYfkpm6TExFzF5gdpQz2IHDh
 
