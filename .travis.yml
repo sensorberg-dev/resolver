@@ -1,4 +1,4 @@
 notifications:
   slack: sensorberg:bYfkpm6TExFzF5gdpQz2IHDh
 
-./gradlew test
+script: ./gradlew test
