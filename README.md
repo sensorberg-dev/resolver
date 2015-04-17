@@ -1,4 +1,5 @@
 #Resolver
+[![Build Status](https://travis-ci.org/sensorberg-dev/resolver.svg)](https://travis-ci.org/sensorberg-dev/resolver)
 
 The Resolver is a microservice that you can run in your own infrastructure or hosted by us, resposible for delivering all neccesary data to the SDKs in order for them to map a beacon the the attached content.
 
