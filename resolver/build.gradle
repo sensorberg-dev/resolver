@@ -1,0 +1,44 @@
+apply plugin: 'spring-boot'
+
+buildscript {
+    dependencies {
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.2.3.RELEASE'
+        classpath 'org.springframework:springloaded:1.2.3.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+
+try {
+    ext.branch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+    ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
+} catch (e) {
+    println "unable to get git HEAD commit $e.message"
+    ext.branch = 'unknown'
+    ext.hash = 'unknown'
+}
+
+jar {
+    manifest {
+        attributes("Implementation-Version": "$branch:$hash")
+    }
+}
+
+dependencies {
+    compile 'org.springframework.boot:spring-boot-starter-web:1.2.3.RELEASE'
+    compile 'org.springframework:spring-context:4.1.6.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-actuator:1.2.3.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-aop:1.2.3.RELEASE'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.5.3'
+    compile 'org.apache.httpcomponents:httpclient:4.4.1'
+
+    compile ('org.elasticsearch:elasticsearch-groovy:1.5.2') {
+        exclude module: "groovy-all"
+    }
+    compile 'org.apache.commons:commons-lang3:3.3.2'
+    compile 'com.vividsolutions:jts:1.11'
+
+    testCompile 'org.springframework.boot:spring-boot-starter-test:1.2.3.RELEASE'
+    testCompile 'org.spockframework:spock-spring:1.0-groovy-2.4'
+}

@@ -1,0 +1,11 @@
+{
+  "properties": {
+    "beacons": {
+      "type": "long"
+    },
+    "environment": {
+      "type": "string",
+      "index": "not_analyzed"
+    }
+  }
+}

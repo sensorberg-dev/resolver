@@ -1,0 +1,20 @@
+{
+  "properties": {
+    "synchronizationId": {
+      "type": "string",
+      "index": "not_analyzed"
+    },
+    "tillVersionId": {
+      "type": "long"
+    },
+    "changedItems": {
+      "type": "long"
+    },
+    "synchronizationDate": {
+      "type": "date"
+    },
+    "status": {
+      "type": "boolean"
+    }
+  }
+}

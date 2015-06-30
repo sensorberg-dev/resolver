@@ -4,3 +4,4 @@ build
 .gradle
 *.iml
 *.ipr
+application.pid

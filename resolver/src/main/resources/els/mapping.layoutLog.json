@@ -1,0 +1,23 @@
+{
+  "properties": {
+    "eventDate": {
+      "type": "date"
+    },
+    "reportedBack": {
+      "properties": {
+        "actionsResolved": {
+          "type": "long"
+        },
+        "dt": {
+          "type": "date"
+        },
+        "problem": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

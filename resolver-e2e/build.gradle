@@ -1,0 +1,6 @@
+dependencies {
+    testCompile project(':resolver')
+    testCompile ('com.jayway.restassured:rest-assured:2.3.4') {
+        exclude group: 'org.codehaus.groovy'
+    }
+}
