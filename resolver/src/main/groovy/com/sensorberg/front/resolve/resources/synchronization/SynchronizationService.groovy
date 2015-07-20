@@ -108,8 +108,8 @@ class SynchronizationService implements IsSearchClient {
         return logProvider.getById(id)
     }
 
-    public boolean delete(String apiKey) {
-        return logProvider.delete(apiKey)
+    public boolean delete(String synchronizationId) {
+        return logProvider.delete(synchronizationId)
     }
 
     private SynchronizationResponse sync(SyncApplicationRequest sa, long versionId) {

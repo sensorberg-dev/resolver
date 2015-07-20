@@ -96,10 +96,10 @@ class SynchronizationLogProvider implements IsSearchClient {
         }
     }
 
-    public boolean delete(String apiKey) {
+    public boolean delete(String synchronizationId) {
         client.prepareDeleteByQuery(ESConfig.INDEX_NAME)
                 .setTypes(ESConfig.INDEX.syncApplications)
-                .setQuery(QueryBuilders.matchQuery("apiKey", apiKey))
+                .setQuery(QueryBuilders.matchQuery("_id", synchronizationId))
                 .execute().actionGet();
         return true;
     }
