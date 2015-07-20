@@ -11,4 +11,6 @@ class SynchronizationLogItem {
     boolean status
     String statusDetails
     long changedItems
+
+    long duration
 }

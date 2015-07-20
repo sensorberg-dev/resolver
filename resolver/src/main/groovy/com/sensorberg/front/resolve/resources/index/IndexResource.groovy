@@ -1,5 +1,6 @@
 package com.sensorberg.front.resolve.resources.index
 
+import com.sensorberg.front.resolve.resources.synchronization.SynchronizationService
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam

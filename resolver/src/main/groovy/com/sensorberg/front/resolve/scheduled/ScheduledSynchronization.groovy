@@ -1,6 +1,6 @@
 package com.sensorberg.front.resolve.scheduled
 
-import com.sensorberg.front.resolve.resources.index.SynchronizationService
+import com.sensorberg.front.resolve.resources.synchronization.SynchronizationService
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled

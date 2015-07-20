@@ -1,6 +1,8 @@
-package com.sensorberg.front.resolve.resources.index
+package com.sensorberg.front.resolve.resources.synchronization
 
 import com.sensorberg.front.resolve.producers.els.domain.IsSearchClient
+import com.sensorberg.front.resolve.resources.index.IndexService
+import com.sensorberg.front.resolve.resources.index.VersionService
 import com.sensorberg.front.resolve.resources.index.domain.SyncApplicationRequest
 import com.sensorberg.front.resolve.resources.index.domain.SyncApplicationValidator
 import com.sensorberg.front.resolve.resources.index.domain.SynchronizationLogItem
@@ -66,22 +68,25 @@ class SynchronizationService implements IsSearchClient {
                 synchronizationDate: new Date()
         )
         try {
-            def all = sync(sa, currentVersionId)
-            def beaconResult = indexService.indexBeacons(all.beacons, sa, all.tillVersionId)
-            def actionResult = indexService.indexActions(all.actions, all.tillVersionId)
+            def syncResponse = sync(sa, currentVersionId)
+            def beaconResult = indexService.indexBeacons(syncResponse.beacons, sa, syncResponse.tillVersionId)
+            def actionResult = indexService.indexActions(syncResponse.actions, syncResponse.tillVersionId)
             // todo: low priority analyze only changed applications
             indexService.analyzeApplications()
 
-            logItem.tillVersionId = all.tillVersionId
-            logItem.changedItems += all.beacons.size() + all.actions.size()
+            logItem.tillVersionId = syncResponse.tillVersionId
+            logItem.changedItems += syncResponse.beacons.size() + syncResponse.actions.size()
             logItem.status = beaconResult && actionResult
 
 
         } catch (Exception e) {
             logItem.status = false
-            logItem.statusDetails = e.getMessage()
+            logItem.statusDetails = "${e.getClass().name} ${e.getMessage()}\n"
+
+            e.getStackTrace().each { logItem.statusDetails +=  "${it.fileName} ${it.lineNumber} ${it.methodName}\n"}
         }
 
+        logItem.duration =  new Date().getTime() - logItem.synchronizationDate.getTime();
         return logItem
     }
 
@@ -106,14 +111,17 @@ class SynchronizationService implements IsSearchClient {
         return logProvider.getById(id)
     }
 
-    public boolean delete(String apiKey) {
-        return logProvider.delete(apiKey)
+    public boolean delete(String synchronizationId) {
+        return logProvider.delete(synchronizationId)
     }
 
     private SynchronizationResponse sync(SyncApplicationRequest sa, long versionId) {
         URI uri = new URI(sa.url)
-        def queryPart = URLEncodedUtils.parse(uri, "UTF-8")
+
+        def queryPart = []
+        queryPart.addAll(URLEncodedUtils.parse(uri, "UTF-8"))
         queryPart.add(new BasicNameValuePair("versionId", "$versionId"))
+
         def queryString = URLEncodedUtils.format(queryPart, "UTF-8")
 
         def response = restTemplate.getForObject(

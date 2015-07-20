@@ -1,4 +1,4 @@
-package com.sensorberg.front.resolve.resources.index
+package com.sensorberg.front.resolve.resources.synchronization
 
 import com.sensorberg.front.resolve.resources.index.domain.SyncApplicationRequest
 import org.springframework.web.bind.annotation.PathVariable
@@ -43,12 +43,12 @@ class SynchronizationResource {
 
     /**
      * delete synchronization endpoint using syncApplicationRequest apiKey
-     * @param apiKey syncApplicationRequest apiKey to be deleted
+     * @param synchronizationId syncApplicationRequest synchronizationId to be deleted
      * @return operation status
      */
-    @RequestMapping(value = "/synchronizations/{apiKey}", method = RequestMethod.DELETE)
-    def delete(@PathVariable(value = "apiKey") String apiKey) {
-        service.delete(apiKey)
+    @RequestMapping(value = "/synchronizations/{synchronizationId}", method = RequestMethod.DELETE)
+    def delete(@PathVariable(value = "synchronizationId") String synchronizationId) {
+        service.delete(synchronizationId)
     }
 
 }

@@ -108,18 +108,18 @@ Setup a synchronization configuration. The resolver will keep in sync with your 
 ###*body*
 ```
 {
-	"host" : "https://connect.sensorberg.com",
-	"apiKey" : "852d6a72cb8980ddadf0355ece37fa1c90ac9359b6ffc6accb47847f43eaf904"
+    "id": "choose an ID or send null and one will be generated",
+    "url": "https://connect.sensorberg.com/api/synchronizations/852d6a72cb8980ddadf0355ece37fa1c90ac9359b6ffc6accb47847f43eaf904",
+    "backchannelUrl" : "https://connect.sensorberg.com/api/beacon/resolve/_bulk"               
 }
 ```
 With your apiKey from [manage.sensorberg.com/#/applications](https://manage.sensorberg.com/#/applications)
 ###*return value*
 ```
 {
-    "host": "https://connect.sensorberg.com",
-    "apiKey": "852d6a72cb8980ddadf0355ece37fa1c90ac9359b6ffc6accb47847f43eaf904",
-    "token": null,
-    "environment": "https://connect.sensorberg.com/852d6a72cb8980ddadf0355ece37fa1c90ac9359b6ffc6accb47847f43eaf904"
+    "id": "choose an ID or send null and one will be generated",
+    "url": "https://connect.sensorberg.com/api/synchronizations/852d6a72cb8980ddadf0355ece37fa1c90ac9359b6ffc6accb47847f43eaf904",
+    "backchannelUrl" : "https://connect.sensorberg.com/api/beacon/resolve/_bulk"               
 }
 ```
 ##GET /synchronizations
@@ -128,10 +128,9 @@ Get a list of all the synchronizations that are set up for this host:
 ```
 [
     {
-        "host": "https://connect.sensorberg.com",
-        "apiKey": "852d6a72cb8980ddadf0355ece37fa1c90ac9359b6ffc6accb47847f43eaf904",
-        "token": null,
-        "environment": "https://connect.sensorberg.com/852d6a72cb8980ddadf0355ece37fa1c90ac9359b6ffc6accb47847f43eaf904"
+        "id": "foo",
+        "url": "https://connect.sensorberg.com/api/synchronizations/852d6a72cb8980ddadf0355ece37fa1c90ac9359b6ffc6accb47847f43eaf904",
+        "backchannelUrl" : "https://connect.sensorberg.com/api/beacon/resolve/_bulk"               
     }
 ]
 ```
