@@ -1,6 +1,8 @@
-package com.sensorberg.front.resolve.resources.index
+package com.sensorberg.front.resolve.resources.synchronization
 
 import com.sensorberg.front.resolve.producers.els.domain.IsSearchClient
+import com.sensorberg.front.resolve.resources.index.IndexService
+import com.sensorberg.front.resolve.resources.index.VersionService
 import com.sensorberg.front.resolve.resources.index.domain.SyncApplicationRequest
 import com.sensorberg.front.resolve.resources.index.domain.SyncApplicationValidator
 import com.sensorberg.front.resolve.resources.index.domain.SynchronizationLogItem

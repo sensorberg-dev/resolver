@@ -3,7 +3,7 @@ package com.sensorberg.front.resolve.resources.layout
 import com.sensorberg.front.resolve.resources.application.ApplicationService
 import com.sensorberg.front.resolve.resources.application.domain.Application
 import com.sensorberg.front.resolve.resources.backchannel.BackendSenderService
-import com.sensorberg.front.resolve.resources.index.SynchronizationService
+import com.sensorberg.front.resolve.resources.synchronization.SynchronizationService
 import com.sensorberg.front.resolve.resources.index.VersionService
 import com.sensorberg.front.resolve.resources.layout.domain.LayoutCtx
 import com.sensorberg.front.resolve.resources.layout.domain.LayoutRequest

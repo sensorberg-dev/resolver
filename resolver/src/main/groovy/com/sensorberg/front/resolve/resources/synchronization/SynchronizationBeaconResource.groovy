@@ -1,4 +1,4 @@
-package com.sensorberg.front.resolve.resources.index
+package com.sensorberg.front.resolve.resources.synchronization
 
 import com.sensorberg.front.resolve.resources.layout.domain.Beacon
 import org.springframework.beans.factory.annotation.Autowired

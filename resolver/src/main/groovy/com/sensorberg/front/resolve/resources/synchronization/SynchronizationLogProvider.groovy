@@ -1,4 +1,4 @@
-package com.sensorberg.front.resolve.resources.index
+package com.sensorberg.front.resolve.resources.synchronization
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.sensorberg.front.resolve.config.ESConfig

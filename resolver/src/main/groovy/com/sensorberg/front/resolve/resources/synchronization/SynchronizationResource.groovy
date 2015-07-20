@@ -1,4 +1,4 @@
-package com.sensorberg.front.resolve.resources.index
+package com.sensorberg.front.resolve.resources.synchronization
 
 import com.sensorberg.front.resolve.resources.index.domain.SyncApplicationRequest
 import org.springframework.web.bind.annotation.PathVariable
