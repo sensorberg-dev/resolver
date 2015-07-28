@@ -75,6 +75,22 @@ Total time: 7.354 secs
  [...]
 ```
 
+### Change port
+
+You can change the port of the running Spring Boot Application by adding/changing the following Entry to the file application.properties
+
+```
+server.port=8090
+```
+
+### Change log level
+
+You can change the log level of the Spring Boot Application by adding/changing the following Entry to the file application.properties
+
+```
+logging.level.com.sensorberg=DEBUG
+```
+
 #API endpoints:
 
 For a full list, visit our [readme.io live API page](https://sensorberg.readme.io/)

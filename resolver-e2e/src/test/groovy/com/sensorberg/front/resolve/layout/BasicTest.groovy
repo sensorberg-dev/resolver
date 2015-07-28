@@ -8,13 +8,15 @@ import spock.lang.Shared
 import spock.lang.Specification
 
 
-@Ignore
+
 class BasicTest extends Specification {
 
     @Shared ResolverLayoutHelper resolver = new ResolverLayoutHelper()
 
     final def apiKey = "a9677402e38469a9db58dd51266e912909d769d5e272b28968b7aca3c991cc46"
 
+
+    // TODO: wir müssen erst die ES mit Daten füllen.
     def "basic test"() {
         when:
         def response = resolver.layout(apiKey)

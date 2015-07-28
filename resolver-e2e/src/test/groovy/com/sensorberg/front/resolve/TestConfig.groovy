@@ -1,7 +1,10 @@
 package com.sensorberg.front.resolve
 
 class TestConfig {
-    static String url() {
-        return "http://localhost:8080/layout"
+
+    private static String host = "http://localhost:8090/"
+
+    static String getHost() {
+        return host
     }
 }

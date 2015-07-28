@@ -3,4 +3,7 @@ dependencies {
     testCompile ('com.jayway.restassured:rest-assured:2.3.4') {
         exclude group: 'org.codehaus.groovy'
     }
+
+    testCompile 'com.googlecode.json-simple:json-simple:1.1'
+
 }

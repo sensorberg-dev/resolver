@@ -63,12 +63,17 @@ class SynchronizationService implements IsSearchClient {
     }
 
     def SynchronizationLogItem synchronizeAll(SyncApplicationRequest sa, long currentVersionId = 0) {
+
+        log.info("synchronizeAll called for Sync ID:", sa.id)
+
         def logItem = new SynchronizationLogItem(
                 synchronizationId: sa.id,
                 synchronizationDate: new Date()
         )
         try {
+            // Call backend and get a sync response
             def syncResponse = sync(sa, currentVersionId)
+            //
             def beaconResult = indexService.indexBeacons(syncResponse.beacons, sa, syncResponse.tillVersionId)
             def actionResult = indexService.indexActions(syncResponse.actions, syncResponse.tillVersionId)
             // todo: low priority analyze only changed applications
@@ -96,6 +101,8 @@ class SynchronizationService implements IsSearchClient {
 
     public SyncApplicationRequest addSyncApplication(SyncApplicationRequest syncApplication) {
         if(!SyncApplicationValidator.isValid(syncApplication)) {
+
+            // TODO: Generate new exception
             throw new RuntimeException("request is not valid")
         }
         def result = logProvider.saveSyncApplication(syncApplication)
@@ -115,7 +122,16 @@ class SynchronizationService implements IsSearchClient {
         return logProvider.delete(synchronizationId)
     }
 
+    /**
+     * Call the backend to get a sync response for the given ApplicationRequest.
+     * @param sa
+     * @param versionId
+     * @return
+     */
     private SynchronizationResponse sync(SyncApplicationRequest sa, long versionId) {
+
+        log.debug("Calling Backend with ApplicationRequest: "  + sa.toString())
+
         URI uri = new URI(sa.url)
 
         def queryPart = []
@@ -127,6 +143,7 @@ class SynchronizationService implements IsSearchClient {
         def response = restTemplate.getForObject(
                 "$uri.scheme://$uri.authority$uri.path?$queryString",
                 SynchronizationResponse.class)
+
         return response
     }
 

@@ -7,12 +7,15 @@ import com.sensorberg.front.resolve.resources.layout.domain.LayoutResponse
 import static com.jayway.restassured.RestAssured.expect
 
 class ResolverLayoutHelper {
+
+    private static String PATH = "layout"
+
     static LayoutResponse layout(String apiKey) {
         def response = expect()
                 .given()
                 .headers(["X-Api-Key": apiKey, "Content-Type": "application/json"])
                 .when()
-                .get(TestConfig.url())
+                .get(TestConfig.getHost() + PATH)
                 .thenReturn()
         if(response.statusCode == 204) {
             return null
@@ -27,7 +30,7 @@ class ResolverLayoutHelper {
                 .body(body)
                 .headers(["X-Api-Key": apiKey, "Content-Type": "application/json"])
                 .when()
-                .post(TestConfig.url())
+                .post(TestConfig.getHost() + PATH)
                 .thenReturn().getBody().as(LayoutResponse)
     }
 }
