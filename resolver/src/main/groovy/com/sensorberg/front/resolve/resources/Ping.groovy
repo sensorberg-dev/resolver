@@ -4,6 +4,7 @@ import com.sensorberg.front.resolve.config.ESConfig
 import org.elasticsearch.client.Client
 import org.elasticsearch.index.query.QueryBuilders
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.env.Environment
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -20,12 +21,14 @@ class Ping {
     @Autowired
     private Environment env
 
+    @Value('${application.version}')
+    String applicationVersion
 
     @RequestMapping("/ping")
     def getInfo() {
         try {
             return [
-                    version: this.class.getPackage().getImplementationVersion()
+                    version: applicationVersion
             ] +
                     getCounts(ESConfig.INDEX_NAME, ESConfig.INDEX)
         } catch (Exception e) {

@@ -10,18 +10,29 @@ buildscript {
     }
 }
 
+// Get Version from GIT
 try {
     ext.branch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
     ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
+
+    println "Version found: $branch:$hash"
+
 } catch (e) {
     println "unable to get git HEAD commit $e.message"
     ext.branch = 'unknown'
     ext.hash = 'unknown'
 }
 
+// Write version to prop file
+ant.propertyfile(
+        file: "${projectDir}/src/main/resources/application.properties") {
+    entry( key: "application.version", value: "$branch:$hash", operation: "=")
+}
+
 jar {
     manifest {
         attributes("Implementation-Version": "$branch:$hash")
+
     }
 }
 

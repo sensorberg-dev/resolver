@@ -40,6 +40,7 @@ class ESLayoutProvider implements LayoutHandler, IsSearchClient {
         def results = client.prepareSearch()
                 .setIndices(ESConfig.INDEX_NAME)
                 .setTypes(ESConfig.INDEX.beacon)
+                .setSize(ESConfig.MAX_SEARCH_RESULTS)
                 .setQuery(
                 QueryBuilders.matchQuery("applicationIds", applicationId)
         )
@@ -81,6 +82,7 @@ class ESLayoutProvider implements LayoutHandler, IsSearchClient {
         def results = client.prepareSearch()
                 .setIndices(ESConfig.INDEX_NAME)
                 .setTypes(ESConfig.INDEX.beacon)
+                .setSize(ESConfig.MAX_SEARCH_RESULTS)
                 .setQuery(
                 QueryBuilders.filteredQuery(
                         new MatchQueryBuilder("applicationIds", applicationId),
