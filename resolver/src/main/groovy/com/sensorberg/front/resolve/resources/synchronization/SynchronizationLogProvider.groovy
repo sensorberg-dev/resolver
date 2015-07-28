@@ -83,6 +83,7 @@ class SynchronizationLogProvider implements IsSearchClient {
     public List<SyncApplicationRequest> listSynchronizations() {
         def result = client.prepareSearch(ESConfig.INDEX_NAME)
                 .setTypes(ESConfig.INDEX.syncApplications)
+                .setSize(ESConfig.MAX_SEARCH_RESULTS)
                 .setQuery(new MatchAllQueryBuilder())
                 .get()
         if (result.hits.totalHits == 0) {

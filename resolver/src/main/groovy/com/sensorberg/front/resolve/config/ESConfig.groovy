@@ -1,5 +1,7 @@
 package com.sensorberg.front.resolve.config
 
+import org.springframework.beans.factory.annotation.Value
+
 /**
  * elastic search configuration with main index name and types
  */
@@ -17,4 +19,5 @@ class ESConfig {
             monitoringLog: "monitoringLog",
             layoutLog: "layoutLog"
     ]
+    public static final int MAX_SEARCH_RESULTS = Integer.MAX_VALUE
 }
