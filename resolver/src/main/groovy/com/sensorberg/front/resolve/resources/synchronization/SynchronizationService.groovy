@@ -130,4 +130,31 @@ class SynchronizationService implements IsSearchClient {
         return response
     }
 
+    public SynchronizationLogItem inject(SynchronizationResponse syncResponse, SyncApplicationRequest sa){
+        def logItem = new SynchronizationLogItem(
+                synchronizationId: sa.id,
+                synchronizationDate: new Date()
+        )
+        try {
+            def beaconResult = indexService.indexBeacons(syncResponse.beacons, sa, syncResponse.tillVersionId)
+            def actionResult = indexService.indexActions(syncResponse.actions, syncResponse.tillVersionId)
+            // todo: low priority analyze only changed applications
+            indexService.analyzeApplications()
+
+            logItem.tillVersionId = syncResponse.tillVersionId
+            logItem.changedItems += syncResponse.beacons.size() + syncResponse.actions.size()
+            logItem.status = beaconResult && actionResult
+
+
+        } catch (Exception e) {
+            logItem.status = false
+            logItem.statusDetails = "${e.getClass().name} ${e.getMessage()}\n"
+
+            e.getStackTrace().each { logItem.statusDetails +=  "${it.fileName} ${it.lineNumber} ${it.methodName}\n"}
+        }
+
+        logItem.duration =  new Date().getTime() - logItem.synchronizationDate.getTime();
+        logProvider.putLogItem(logItem)
+        return logItem
+    }
 }
