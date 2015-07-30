@@ -5,7 +5,7 @@ package com.sensorberg.front.resolver;
  */
 public class TestConfig {
 
-    private static String host = "http://localhost:8001/";
+    private static String host = "http://localhost:8090/";
 
     static public String getHost() {
         return host;

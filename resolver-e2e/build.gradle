@@ -5,5 +5,6 @@ dependencies {
     }
 
     testCompile 'com.googlecode.json-simple:json-simple:1.1'
+    testCompile 'uk.co.datumedge:hamcrest-json:0.2'
 
 }

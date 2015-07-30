@@ -36,6 +36,9 @@ class ESClientProducer {
     @Value('${elasticsearch.connectionString}')
     String elasticsearchConnectionString
 
+    @Autowired
+    ESConfig esConfig
+
     private Client client
 
     private final ObjectMapper objectMapper = new ObjectMapper()
@@ -45,6 +48,8 @@ class ESClientProducer {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
         log.info("els connectionString: {}", elasticsearchConnectionString)
+        log.info("els index name: {}" , esConfig.getIndexName())
+
         client = ElsConfigBuilder.buildClient(elasticsearchConnectionString)
         if(client == null) {
             log.error(
@@ -56,14 +61,14 @@ class ESClientProducer {
 
     private void tryInitIndexes() {
         try {
-            def exists = client.admin().indices().exists(new IndicesExistsRequest(ESConfig.INDEX_NAME)).actionGet().exists
+            def exists = client.admin().indices().exists(new IndicesExistsRequest(esConfig.getIndexName())).actionGet().exists
             if (!exists) {
-                client.admin().indices().prepareCreate(ESConfig.INDEX_NAME)
-                        .addMapping(ESConfig.INDEX.action, fileReader.contentAsString("els/mapping.action.json"))
-                        .addMapping(ESConfig.INDEX.application, fileReader.contentAsString("els/mapping.application.json"))
-                        .addMapping(ESConfig.INDEX.beacon, fileReader.contentAsString("els/mapping.beacon.json"))
-                        .addMapping(ESConfig.INDEX.layoutLog, fileReader.contentAsString("els/mapping.layoutLog.json"))
-                        .addMapping(ESConfig.INDEX.synchronizationLog, fileReader.contentAsString("els/mapping.synchronizationLog.json"))
+                client.admin().indices().prepareCreate(esConfig.getIndexName())
+                        .addMapping(esConfig.INDEX.action, fileReader.contentAsString("els/mapping.action.json"))
+                        .addMapping(esConfig.INDEX.application, fileReader.contentAsString("els/mapping.application.json"))
+                        .addMapping(esConfig.INDEX.beacon, fileReader.contentAsString("els/mapping.beacon.json"))
+                        .addMapping(esConfig.INDEX.layoutLog, fileReader.contentAsString("els/mapping.layoutLog.json"))
+                        .addMapping(esConfig.INDEX.synchronizationLog, fileReader.contentAsString("els/mapping.synchronizationLog.json"))
                         .execute().actionGet()
                 log.info("indexes created")
             } else {
@@ -89,7 +94,7 @@ class ESClientProducer {
     }
 
     public void forceRecreateIndexes() {
-        client.admin().indices().delete(new DeleteIndexRequest(ESConfig.INDEX_NAME)).actionGet()
+        client.admin().indices().delete(new DeleteIndexRequest(esConfig.getIndexName())).actionGet()
         tryInitIndexes()
     }
 

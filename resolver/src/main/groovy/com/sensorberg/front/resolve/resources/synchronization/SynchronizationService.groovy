@@ -62,9 +62,15 @@ class SynchronizationService implements IsSearchClient {
         }
     }
 
+    /**
+     * Main service method for synchronization.
+     * @param sa
+     * @param currentVersionId
+     * @return
+     */
     def SynchronizationLogItem synchronizeAll(SyncApplicationRequest sa, long currentVersionId = 0) {
 
-        log.info("synchronizeAll called for Sync ID:", sa.id)
+        log.debug("synchronizeAll called for Sync ID:", sa.id)
 
         def logItem = new SynchronizationLogItem(
                 synchronizationId: sa.id,
@@ -73,7 +79,10 @@ class SynchronizationService implements IsSearchClient {
         try {
             // Call backend and get a sync response
             def syncResponse = sync(sa, currentVersionId)
-            //
+
+            // Index Beacons, Actions and analyze Applications
+            processSyncResponse(syncResponse,logItem, sa)
+
             def beaconResult = indexService.indexBeacons(syncResponse.beacons, sa, syncResponse.tillVersionId)
             def actionResult = indexService.indexActions(syncResponse.actions, syncResponse.tillVersionId)
             // todo: low priority analyze only changed applications
@@ -82,7 +91,6 @@ class SynchronizationService implements IsSearchClient {
             logItem.tillVersionId = syncResponse.tillVersionId
             logItem.changedItems += syncResponse.beacons.size() + syncResponse.actions.size()
             logItem.status = beaconResult && actionResult
-
 
         } catch (Exception e) {
             logItem.status = false
@@ -93,6 +101,51 @@ class SynchronizationService implements IsSearchClient {
 
         logItem.duration =  new Date().getTime() - logItem.synchronizationDate.getTime();
         return logItem
+    }
+
+    /**
+     * inject a sync response to test synchronization.
+     * @param syncResponse
+     * @param sa
+     * @return
+     */
+    public SynchronizationLogItem syncWithResponse(SynchronizationResponse syncResponse, SyncApplicationRequest sa){
+        def logItem = new SynchronizationLogItem(
+                synchronizationId: sa.id,
+                synchronizationDate: new Date()
+        )
+        try {
+            // Index Beacons, Actions and analyze Applications
+            processSyncResponse(syncResponse,logItem, sa)
+
+        } catch (Exception e) {
+            logItem.status = false
+            logItem.statusDetails = "${e.getClass().name} ${e.getMessage()}\n"
+
+            e.getStackTrace().each { logItem.statusDetails +=  "${it.fileName} ${it.lineNumber} ${it.methodName}\n"}
+        }
+
+        logItem.duration =  new Date().getTime() - logItem.synchronizationDate.getTime();
+        logProvider.putLogItem(logItem)
+        return logItem
+    }
+
+    /**
+     *
+     * @param synchronizationResponse
+     */
+    private void processSyncResponse(final SynchronizationResponse syncResponse,
+                                     final SynchronizationLogItem logItem,
+                                     final SyncApplicationRequest sa) {
+
+        def beaconResult = indexService.indexBeacons(syncResponse.beacons, sa, syncResponse.tillVersionId)
+        def actionResult = indexService.indexActions(syncResponse.actions, syncResponse.tillVersionId)
+        // todo: low priority analyze only changed applications
+        indexService.analyzeApplications()
+
+        logItem.tillVersionId = syncResponse.tillVersionId
+        logItem.changedItems += syncResponse.beacons.size() + syncResponse.actions.size()
+        logItem.status = beaconResult && actionResult
     }
 
     public Collection<SynchronizationLogItem> recentLogs(int size, int from) {

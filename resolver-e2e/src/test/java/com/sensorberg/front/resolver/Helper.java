@@ -44,5 +44,4 @@ public class Helper {
 
         return (String) jsonObject.get(key);
     }
-
 }

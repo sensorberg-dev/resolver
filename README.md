@@ -91,6 +91,25 @@ You can change the log level of the Spring Boot Application by adding/changing t
 logging.level.com.sensorberg=DEBUG
 ```
 
+### Change ElasticSearch Connection String and Index
+
+You can change the ElasticSearch Connection String and the Index in the application.properties
+
+```
+elasticsearch.connectionString=http://localhost/:9300/elasticsearch_xyz
+elasticsearch.indexName=beacon_layout
+
+```
+
+Alternative you can set these properties to the Java VM at the startup of the Spring Boot Application
+
+java -jar service-resolve.jar -Delasticsearch.indexName=beacon_layout -Delasticsearch.connectionString=http/://localhost/:9300/elasticsearch_xyz
+
+Setting properties via VM overrides the settings of the application.properties.
+
+
+
+
 #API endpoints:
 
 For a full list, visit our [readme.io live API page](https://sensorberg.readme.io/)

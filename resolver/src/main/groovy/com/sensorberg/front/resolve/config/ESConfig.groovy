@@ -1,15 +1,21 @@
 package com.sensorberg.front.resolve.config
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
+
+import javax.annotation.Resource
 
 /**
  * elastic search configuration with main index name and types
  */
+
+@Service
 class ESConfig {
-    private static final long TTL_DAY = 86400000 // 1 day
+
+    public static final long TTL_DAY = 86400000 // 1 day
     public static final long TTL_SYNCHRONIZATION_LOG = TTL_DAY * 14 // 14 days
     public static final long TTL_LOG = TTL_DAY * 30 // 30 days
-    public static String INDEX_NAME = "beacon_layout"
+
     public static def INDEX = [
             beacon: "beacon",
             action: "action",
@@ -20,4 +26,14 @@ class ESConfig {
             layoutLog: "layoutLog"
     ]
     public static final int MAX_SEARCH_RESULTS = Integer.MAX_VALUE
+
+    // 1. Try to get from VM env
+    // 2. Try to get from application.properties
+    @Value('${elasticsearch.indexName}')
+    private final String indexName;
+
+    public String getIndexName(){
+        return indexName;
+    }
+
 }

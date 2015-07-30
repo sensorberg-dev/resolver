@@ -16,6 +16,7 @@ import org.elasticsearch.index.query.MatchQueryBuilder
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.aggregations.AggregationBuilders
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Repository
 
 import java.util.stream.Collectors
@@ -26,6 +27,9 @@ import java.util.stream.Collectors
 @Slf4j
 @Repository
 class ESLayoutProvider implements LayoutHandler, IsSearchClient {
+
+    @Autowired
+    ESConfig esConfig
 
     // todo: move it to helper function
     private static def getGeoHashBox(String geohash) {
@@ -38,9 +42,9 @@ class ESLayoutProvider implements LayoutHandler, IsSearchClient {
 
     private def getAllBeacons(String applicationId) {
         def results = client.prepareSearch()
-                .setIndices(ESConfig.INDEX_NAME)
-                .setTypes(ESConfig.INDEX.beacon)
-                .setSize(ESConfig.MAX_SEARCH_RESULTS)
+                .setIndices(esConfig.getIndexName())
+                .setTypes(esConfig.INDEX.beacon)
+                .setSize(esConfig.MAX_SEARCH_RESULTS)
                 .setQuery(
                 QueryBuilders.matchQuery("applicationIds", applicationId)
         )
@@ -80,9 +84,9 @@ class ESLayoutProvider implements LayoutHandler, IsSearchClient {
     private def getBeaconsFast(String applicationId, String geohash) {
         def geoBox = getGeoHashBox(geohash)
         def results = client.prepareSearch()
-                .setIndices(ESConfig.INDEX_NAME)
-                .setTypes(ESConfig.INDEX.beacon)
-                .setSize(ESConfig.MAX_SEARCH_RESULTS)
+                .setIndices(esConfig.getIndexName())
+                .setTypes(esConfig.INDEX.beacon)
+                .setSize(esConfig.MAX_SEARCH_RESULTS)
                 .setQuery(
                 QueryBuilders.filteredQuery(
                         new MatchQueryBuilder("applicationIds", applicationId),
@@ -118,7 +122,7 @@ class ESLayoutProvider implements LayoutHandler, IsSearchClient {
      * @return
      */
     private Beacon getBeacon(LayoutRequest request) {
-        def results = client.prepareSearch(ESConfig.INDEX_NAME).setTypes(ESConfig.INDEX.beacon).setQuery(
+        def results = client.prepareSearch(esConfig.getIndexName()).setTypes(esConfig.INDEX.beacon).setQuery(
                 QueryBuilders.boolQuery()
                         .must(QueryBuilders.matchQuery("pid", request.pid))
                         .must(QueryBuilders.matchQuery("applicationIds", request.apiKey))
@@ -132,7 +136,7 @@ class ESLayoutProvider implements LayoutHandler, IsSearchClient {
     }
 
     private Collection<Action> getActions(Set<String> actionIds, String apiKey) {
-        def result = client.prepareMultiGet().add(ESConfig.INDEX_NAME, ESConfig.INDEX.action, actionIds).get()
+        def result = client.prepareMultiGet().add(esConfig.getIndexName(), esConfig.INDEX.action, actionIds).get()
         result.responses.findAll {
             it.response.exists
         }.collect {
