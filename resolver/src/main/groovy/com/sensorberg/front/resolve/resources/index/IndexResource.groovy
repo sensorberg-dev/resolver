@@ -34,7 +34,7 @@ class IndexResource {
     }
 
     @RequestMapping(value = "/index", method = RequestMethod.DELETE)
-    def reset(@RequestParam(value = "key", required = false) String key) {
+    def reset() {
         indexService.reset()
         return [success: true]
     }

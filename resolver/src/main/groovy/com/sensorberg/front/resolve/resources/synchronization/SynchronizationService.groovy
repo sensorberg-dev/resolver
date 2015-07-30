@@ -62,13 +62,27 @@ class SynchronizationService implements IsSearchClient {
         }
     }
 
+    /**
+     * Main service method for synchronization.
+     * @param sa
+     * @param currentVersionId
+     * @return
+     */
     def SynchronizationLogItem synchronizeAll(SyncApplicationRequest sa, long currentVersionId = 0) {
+
+        log.debug("synchronizeAll called for Sync ID:", sa.id)
+
         def logItem = new SynchronizationLogItem(
                 synchronizationId: sa.id,
                 synchronizationDate: new Date()
         )
         try {
+            // Call backend and get a sync response
             def syncResponse = sync(sa, currentVersionId)
+
+            // Index Beacons, Actions and analyze Applications
+            processSyncResponse(syncResponse,logItem, sa)
+
             def beaconResult = indexService.indexBeacons(syncResponse.beacons, sa, syncResponse.tillVersionId)
             def actionResult = indexService.indexActions(syncResponse.actions, syncResponse.tillVersionId)
             // todo: low priority analyze only changed applications
@@ -77,7 +91,6 @@ class SynchronizationService implements IsSearchClient {
             logItem.tillVersionId = syncResponse.tillVersionId
             logItem.changedItems += syncResponse.beacons.size() + syncResponse.actions.size()
             logItem.status = beaconResult && actionResult
-
 
         } catch (Exception e) {
             logItem.status = false
@@ -90,12 +103,59 @@ class SynchronizationService implements IsSearchClient {
         return logItem
     }
 
+    /**
+     * inject a sync response to test synchronization.
+     * @param syncResponse
+     * @param sa
+     * @return
+     */
+    public SynchronizationLogItem syncWithResponse(SynchronizationResponse syncResponse, SyncApplicationRequest sa){
+        def logItem = new SynchronizationLogItem(
+                synchronizationId: sa.id,
+                synchronizationDate: new Date()
+        )
+        try {
+            // Index Beacons, Actions and analyze Applications
+            processSyncResponse(syncResponse,logItem, sa)
+
+        } catch (Exception e) {
+            logItem.status = false
+            logItem.statusDetails = "${e.getClass().name} ${e.getMessage()}\n"
+
+            e.getStackTrace().each { logItem.statusDetails +=  "${it.fileName} ${it.lineNumber} ${it.methodName}\n"}
+        }
+
+        logItem.duration =  new Date().getTime() - logItem.synchronizationDate.getTime();
+        logProvider.putLogItem(logItem)
+        return logItem
+    }
+
+    /**
+     *
+     * @param synchronizationResponse
+     */
+    private void processSyncResponse(final SynchronizationResponse syncResponse,
+                                     final SynchronizationLogItem logItem,
+                                     final SyncApplicationRequest sa) {
+
+        def beaconResult = indexService.indexBeacons(syncResponse.beacons, sa, syncResponse.tillVersionId)
+        def actionResult = indexService.indexActions(syncResponse.actions, syncResponse.tillVersionId)
+        // todo: low priority analyze only changed applications
+        indexService.analyzeApplications()
+
+        logItem.tillVersionId = syncResponse.tillVersionId
+        logItem.changedItems += syncResponse.beacons.size() + syncResponse.actions.size()
+        logItem.status = beaconResult && actionResult
+    }
+
     public Collection<SynchronizationLogItem> recentLogs(int size, int from) {
         logProvider.recentLogs(size, from)
     }
 
     public SyncApplicationRequest addSyncApplication(SyncApplicationRequest syncApplication) {
         if(!SyncApplicationValidator.isValid(syncApplication)) {
+
+            // TODO: Generate new exception
             throw new RuntimeException("request is not valid")
         }
         def result = logProvider.saveSyncApplication(syncApplication)
@@ -115,7 +175,16 @@ class SynchronizationService implements IsSearchClient {
         return logProvider.delete(synchronizationId)
     }
 
+    /**
+     * Call the backend to get a sync response for the given ApplicationRequest.
+     * @param sa
+     * @param versionId
+     * @return
+     */
     private SynchronizationResponse sync(SyncApplicationRequest sa, long versionId) {
+
+        log.debug("Calling Backend with ApplicationRequest: "  + sa.toString())
+
         URI uri = new URI(sa.url)
 
         def queryPart = []
@@ -127,6 +196,7 @@ class SynchronizationService implements IsSearchClient {
         def response = restTemplate.getForObject(
                 "$uri.scheme://$uri.authority$uri.path?$queryString",
                 SynchronizationResponse.class)
+
         return response
     }
 

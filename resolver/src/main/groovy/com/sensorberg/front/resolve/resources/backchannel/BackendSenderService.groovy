@@ -31,6 +31,9 @@ class BackendSenderService {
     @Autowired
     RestTemplate restTemplate
 
+    @Autowired
+    ESConfig esConfig
+
     @Async
     public Future<Void> send(LayoutCtx ctx) throws InterruptedException {
         // todo: should we send ctx when there are no actions?
@@ -52,19 +55,19 @@ class BackendSenderService {
     }
 
     private void updateAsDelivered(LayoutCtx ctx, BackchannelResponseWrapper response = new BackchannelResponseWrapper(actionsResolved: 0)) {
-        client.update(new UpdateRequest(ESConfig.INDEX_NAME, ESConfig.INDEX.layoutLog, ctx.id).doc(
+        client.update(new UpdateRequest(esConfig.getIndexName(), esConfig.INDEX.layoutLog, ctx.id).doc(
                 reportedBack: [dt: new Date(), success: true, actionsResolved: response.actionsResolved]
         )).get()
     }
 
     private void updateLastError(LayoutCtx ctx, String problem) {
-        client.update(new UpdateRequest(ESConfig.INDEX_NAME, ESConfig.INDEX.layoutLog, ctx.id).doc(
+        client.update(new UpdateRequest(esConfig.getIndexName(), esConfig.INDEX.layoutLog, ctx.id).doc(
                 reportedBack: [dt: new Date(), success: false, problem: problem]
         )).get()
     }
 
     private void updateAsPrivate(LayoutCtx ctx) {
-        client.update(new UpdateRequest(ESConfig.INDEX_NAME, ESConfig.INDEX.layoutLog, ctx.id).doc(
+        client.update(new UpdateRequest(esConfig.getIndexName(), esConfig.INDEX.layoutLog, ctx.id).doc(
                 reportedBack: [dt: new Date(), success: true, type: "private"]
         )).get()
     }
