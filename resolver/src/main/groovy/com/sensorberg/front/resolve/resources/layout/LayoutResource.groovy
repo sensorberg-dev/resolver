@@ -60,7 +60,7 @@ class LayoutResource {
         if(ctx.response.currentVersion) {
             return new ResponseEntity(httpHeaders, HttpStatus.NOT_MODIFIED);
         }
-        httpHeaders.add("Cache-Control", "no-transform,public,max-age=6000,s-maxage=6000")
+        httpHeaders.add("Cache-Control", "no-transform,public,max-age=86400,s-maxage=86400")
         httpHeaders.add("ETag", "${System.currentTimeMillis()}")
         return new ResponseEntity(ctx.response, httpHeaders, HttpStatus.OK)
     }
