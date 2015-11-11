@@ -1,6 +1,5 @@
 package com.sensorberg.front.resolve.resources.layout.domain
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.sensorberg.front.resolve.resources.index.domain.SyncApplicationRequest
 
@@ -11,7 +10,6 @@ import com.sensorberg.front.resolve.resources.index.domain.SyncApplicationReques
  * you can access last X elements via REST call - see /logs endpoint
  */
 @JsonInclude(value=JsonInclude.Include.NON_EMPTY)
-@JsonIgnoreProperties(ignoreUnknown = true)
 class LayoutCtx {
 
     String id
@@ -20,6 +18,7 @@ class LayoutCtx {
     LayoutRequest request
     LayoutResponse response
     SyncApplicationRequest syncApplicationRequest
+    Date reportedBack
 
     public LayoutCtx() {
         id = UUID.randomUUID()
