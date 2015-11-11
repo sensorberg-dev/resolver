@@ -41,6 +41,22 @@ public class LayoutLogReportedBackHistoryScriptTest extends Specification {
 
     }
 
+    def "should not fail with no reportedBack Status"(){
+        when:
+        def input = [ currentStatus : "foo",
+                      ctx : [
+                              _source : [
+                                      :
+                              ]
+                      ]
+        ]
+
+        def values = runScript(input)
+        then:
+        assert values.ctx._source.reportedBack == "foo"
+        assert values.ctx._source.reportedBackHistory == [  "foo" ]
+    }
+
     def Map<String, Object> runScript(LinkedHashMap<String, Object> input) {
         return ScriptProvider.runScript(
                 ScriptProvider.fileNames.layoutLogReportedBackHistory,
