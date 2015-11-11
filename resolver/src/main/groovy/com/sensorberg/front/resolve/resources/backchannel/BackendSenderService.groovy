@@ -41,7 +41,7 @@ class BackendSenderService {
 
     @Async
     public void send(LayoutCtx ctx) throws InterruptedException {
-        sendSync(ctx)
+        send(ctx)
     }
 
 
