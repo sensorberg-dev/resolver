@@ -36,7 +36,7 @@ class BackendSenderService {
     public Future<Void> send(LayoutCtx ctx) throws InterruptedException {
         // todo: should we send ctx when there are no actions?
         if (ctx?.request?.activity?.actions == null || ctx.request.activity.actions.size() == 0) {
-            return updateAsDelivered(ctx)
+            return;
         }
         def backchannelUrl = ctx?.syncApplicationRequest?.backchannelUrl
         // do we have back channel defined?
