@@ -5,6 +5,7 @@ import com.sensorberg.front.resolve.config.ESConfig
 import com.sensorberg.front.resolve.resources.backchannel.domain.BackchannelResponseWrapper
 import com.sensorberg.front.resolve.resources.layout.domain.LayoutCtx
 import groovy.util.logging.Slf4j
+import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.action.update.UpdateRequest
 import org.elasticsearch.client.Client
 import org.springframework.beans.factory.annotation.Autowired
@@ -52,20 +53,24 @@ class BackendSenderService {
     }
 
     private void updateAsDelivered(LayoutCtx ctx, BackchannelResponseWrapper response = new BackchannelResponseWrapper(actionsResolved: 0)) {
-        client.update(new UpdateRequest(ESConfig.INDEX_NAME, ESConfig.INDEX.layoutLog, ctx.id).doc(
-                reportedBack: [dt: new Date(), success: true, actionsResolved: response.actionsResolved]
-        )).get()
+        ctx.reportedBack = [dt: new Date(), success: true, actionsResolved: response.actionsResolved]
+        write(ctx);
     }
 
     private void updateLastError(LayoutCtx ctx, String problem) {
-        client.update(new UpdateRequest(ESConfig.INDEX_NAME, ESConfig.INDEX.layoutLog, ctx.id).doc(
-                reportedBack: [dt: new Date(), success: false, problem: problem]
-        )).get()
+        ctx.reportedBack = [dt: new Date(), success: false, problem: problem]
+        write(ctx);
     }
 
     private void updateAsPrivate(LayoutCtx ctx) {
-        client.update(new UpdateRequest(ESConfig.INDEX_NAME, ESConfig.INDEX.layoutLog, ctx.id).doc(
-                reportedBack: [dt: new Date(), success: true, type: "private"]
-        )).get()
+        ctx.reportedBack =  [dt: new Date(), success: true, type: "private"]
+        write(ctx);
+    }
+
+    void write(LayoutCtx ctx) {
+        client.prepareIndex(ESConfig.INDEX_NAME, ESConfig.INDEX.layoutLog, ctx.id)
+                .setSource(mapper.writeValueAsBytes(ctx))
+                .setTTL(ESConfig.TTL_LOG)
+                .execute().actionGet()
     }
 }

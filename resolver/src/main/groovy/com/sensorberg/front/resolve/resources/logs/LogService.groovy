@@ -39,13 +39,6 @@ class LogService implements IsSearchClient {
         }
     }
 
-    public void log(LayoutCtx ctx) {
-        client.prepareIndex(ESConfig.INDEX_NAME, TYPE.LAYOUT.indexName, ctx.id)
-                .setSource(mapper.writeValueAsBytes(ctx))
-                .setTTL(ESConfig.TTL_LOG)
-                .execute().actionGet()
-    }
-
     public def getLayoutLogs(int from = 0, int size = 100, int slow = 0) {
         def query = (slow == 0) ? new MatchAllQueryBuilder() : new RangeQueryBuilder("elapsedTime").from(slow)
         def results = client
