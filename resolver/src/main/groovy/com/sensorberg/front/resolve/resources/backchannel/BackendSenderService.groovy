@@ -1,5 +1,4 @@
 package com.sensorberg.front.resolve.resources.backchannel
-
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.sensorberg.front.resolve.config.ESConfig
 import com.sensorberg.front.resolve.resources.backchannel.domain.BackchannelResponseWrapper
@@ -10,13 +9,11 @@ import org.elasticsearch.client.Client
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
 
 import java.util.concurrent.Future
-
 /**
- * backend sender
+ * backend messageProducer
  */
 @Slf4j
 @Service

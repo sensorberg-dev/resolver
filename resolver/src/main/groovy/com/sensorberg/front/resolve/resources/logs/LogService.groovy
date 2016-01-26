@@ -1,28 +1,26 @@
 package com.sensorberg.front.resolve.resources.logs
-
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.sensorberg.front.resolve.config.ESConfig
 import com.sensorberg.front.resolve.producers.els.domain.IsSearchClient
 import com.sensorberg.front.resolve.resources.layout.domain.LayoutCtx
-import org.apache.lucene.queryparser.xml.builders.BooleanQueryBuilder
+import com.sensorberg.front.resolve.service.AzureEventHubService
 import org.elasticsearch.index.query.MatchAllQueryBuilder
 import org.elasticsearch.index.query.RangeQueryBuilder
-import org.elasticsearch.index.search.MatchQuery
 import org.elasticsearch.search.sort.FieldSortBuilder
 import org.elasticsearch.search.sort.SortOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-
 /**
  * log service
  */
 @Service
 class LogService implements IsSearchClient {
 
-
-
     @Autowired
     ObjectMapper mapper
+
+    @Autowired
+    AzureEventHubService azureEventHubService
 
     static enum TYPE {
         LAYOUT(ESConfig.INDEX.layoutLog),
@@ -40,10 +38,15 @@ class LogService implements IsSearchClient {
     }
 
     public void log(LayoutCtx ctx) {
+
+        // Write to elastic search
         client.prepareIndex(ESConfig.INDEX_NAME, TYPE.LAYOUT.indexName, ctx.id)
                 .setSource(mapper.writeValueAsBytes(ctx))
                 .setTTL(ESConfig.TTL_LOG)
                 .execute().actionGet()
+
+        // Write to azure event hub
+        azureEventHubService.sendObjectMessage(ctx);
     }
 
     public def getLayoutLogs(int from = 0, int size = 100, int slow = 0) {
@@ -77,6 +80,4 @@ class LogService implements IsSearchClient {
                 .setQuery(new MatchAllQueryBuilder())
                 .get()
     }
-
-
 }
