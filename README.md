@@ -14,7 +14,9 @@ to have your own instance.
 
 #Dependencies
 
-Only an instance of [elastic search](https://www.elastic.co) needs to be available on your machine, or available to your machine.
+###Elasticsearch
+
+An instance of [elastic search](https://www.elastic.co) needs to be available on your machine, or available to your machine.
 
 ```
 brew install elasticsearch
@@ -39,6 +41,20 @@ spring.jackson.date-format=com.fasterxml.jackson.databind.util.ISO8601DateFormat
 apiKey.largeCompany=10000
 ```
 The name of the cluster, when installing from brew is elasticsearch_brew
+
+###Microsoft Azure
+
+The resolver writes JSON data into a Azure Event Hub. The properties of the Event Hub connection are stored in the application.properties file.
+
+```
+connectionfactory.SBCF=amqps://{ServiceBus name}.servicebus.windows.net?amqp.idleTimeout=120000
+
+property.connectionfactory.SBCF.username={username}
+property.connectionfactory.SBCF.password={password}
+
+queue.EventHub={eventHub name}
+
+```
 
 #Standalone
 

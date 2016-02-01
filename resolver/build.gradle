@@ -53,14 +53,6 @@ dependencies {
     // Lombok
     compile("org.projectlombok:lombok:1.16.6")
 
-    // Qpid JMS AMQP client libraries for Event Hub
-//    compile "org.apache.qpid:qpid-amqp-1-0-client-jms:0.32"
-//    compile "org.apache.qpid:qpid-common:6.0.0"
-//    compile 'javax.jms:jms-api:1.1-rev-1'
-//
-//    // Azure storage libs
-//    compile 'com.microsoft.azure:azure-storage:4.0.0'
-
     compile 'org.apache.qpid:qpid-jms-client:0.7.0'
 
     // Json parsing
