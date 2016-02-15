@@ -84,8 +84,6 @@ public class AzureEventHubService {
     public void sendJsonMessage(String json) {
         // add message source to json, needed for azure stream analytics
         json = json.substring(0,1) + messageSourceValue + "," + json.substring(1);
-
-        //sendTextMessage(json);
         sendBytesMessage(json);
     }
 

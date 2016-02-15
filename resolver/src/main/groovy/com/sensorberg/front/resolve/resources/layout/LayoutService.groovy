@@ -1,18 +1,16 @@
 package com.sensorberg.front.resolve.resources.layout
-
 import com.sensorberg.front.resolve.resources.application.ApplicationService
 import com.sensorberg.front.resolve.resources.application.domain.Application
 import com.sensorberg.front.resolve.resources.backchannel.BackendSenderService
-import com.sensorberg.front.resolve.resources.synchronization.SynchronizationService
 import com.sensorberg.front.resolve.resources.index.VersionService
 import com.sensorberg.front.resolve.resources.layout.domain.LayoutCtx
 import com.sensorberg.front.resolve.resources.layout.domain.LayoutRequest
 import com.sensorberg.front.resolve.resources.layout.domain.LayoutResponse
 import com.sensorberg.front.resolve.resources.logs.LogService
+import com.sensorberg.front.resolve.resources.synchronization.SynchronizationService
 import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-
 /**
  * layout service
  */
@@ -57,6 +55,7 @@ class LayoutService {
             ctx.response = new LayoutResponse(currentVersion: true)
             return ctx
         }
+
         Application application = applicationService.getByApiKey(ctx.request.apiKey)
         if(application == null) {
             ctx.response = null
