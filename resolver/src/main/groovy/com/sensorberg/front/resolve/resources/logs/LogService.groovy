@@ -10,11 +10,14 @@ import org.elasticsearch.search.sort.FieldSortBuilder
 import org.elasticsearch.search.sort.SortOrder
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+
 /**
  * log service
  */
 @Service
 class LogService implements IsSearchClient {
+
+
 
     @Autowired
     ObjectMapper mapper
@@ -80,4 +83,6 @@ class LogService implements IsSearchClient {
                 .setQuery(new MatchAllQueryBuilder())
                 .get()
     }
+
+
 }

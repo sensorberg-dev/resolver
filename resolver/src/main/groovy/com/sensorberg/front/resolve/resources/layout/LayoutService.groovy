@@ -41,7 +41,6 @@ class LayoutService {
         })
         LayoutCtx resultCtx = measuredResponse.result
         resultCtx.elapsedTime = measuredResponse.elapsedTime
-        logService.log(resultCtx)
         backendService.send(resultCtx)
         return resultCtx
     }
