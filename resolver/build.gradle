@@ -10,29 +10,46 @@ buildscript {
     }
 }
 
-// Get Version from GIT
-try {
-    ext.branch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-    ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
+// Propagate VM properties to Spring boot
+run {
+    systemProperties = System.properties
+}
 
-    println "Version found: $branch:$hash"
+bootRun {
+    systemProperties = System.properties
+}
+
+// Get Version from GIT
+def branch= 'unknown'
+def hash= 'unknown'
+
+try {
+    branch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+    hash = 'git rev-parse --short HEAD'.execute().text.trim()
 
 } catch (e) {
     println "unable to get git HEAD commit $e.message"
-    ext.branch = 'unknown'
-    ext.hash = 'unknown'
 }
 
+println "Version found: $branch:$hash"
+
 // Write version to prop file
-ant.propertyfile(
-        file: "${projectDir}/src/main/resources/application.properties") {
-    entry( key: "application.version", value: "$branch:$hash", operation: "=")
+task setVersionInfo ()  << {
+
+    ant.propertyfile(
+            file: "${projectDir}/src/main/resources/application.properties") {
+        entry( key: "application.version", value: "$branch:$hash", operation: "=")
+    }
 }
+
+// Set Version before processResources task
+processResources.dependsOn setVersionInfo
+
+jar.dependsOn setVersionInfo
 
 jar {
     manifest {
         attributes("Implementation-Version": "$branch:$hash")
-
     }
 }
 

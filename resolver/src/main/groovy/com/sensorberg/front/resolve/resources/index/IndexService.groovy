@@ -32,6 +32,9 @@ class IndexService implements IsSearchClient {
     @Autowired
     ObjectMapper mapper
 
+    @Autowired
+    ESConfig esConfig
+
     boolean indexBeacons(Collection<Beacon> rawBeacons, SyncApplicationRequest sa, long tillVersionId) {
         if(rawBeacons == null || rawBeacons.size() == 0) {
             return true
@@ -66,8 +69,8 @@ class IndexService implements IsSearchClient {
             def bulk = client.prepareBulk().setRefresh(true)
             beacons.each { key, beacon ->
                 def request = (beacon.active) ?
-                        new IndexRequest(ESConfig.INDEX_NAME, ESConfig.INDEX.beacon, beacon.id).source(mapper.writeValueAsBytes(beacon)) :
-                        new DeleteRequest(ESConfig.INDEX_NAME, ESConfig.INDEX.beacon, beacon.id)
+                        new IndexRequest(esConfig.getIndexName(), esConfig.INDEX.beacon, beacon.id).source(mapper.writeValueAsBytes(beacon)) :
+                        new DeleteRequest(esConfig.getIndexName(), esConfig.INDEX.beacon, beacon.id)
                 bulk.add(request)
             }
             versionService.putAll(apiKeyVersions)
@@ -98,8 +101,8 @@ class IndexService implements IsSearchClient {
                 action.triggers = triggers
                 action.versionId = tillVersionId
                 def operation = (action.active) ?
-                        new IndexRequest(ESConfig.INDEX_NAME, ESConfig.INDEX.action).id(action.id).source(mapper.writeValueAsBytes(action)) :
-                        new DeleteRequest(ESConfig.INDEX_NAME, ESConfig.INDEX.action, action.id)
+                        new IndexRequest(esConfig.getIndexName(), esConfig.INDEX.action).id(action.id).source(mapper.writeValueAsBytes(action)) :
+                        new DeleteRequest(esConfig.getIndexName(), esConfig.INDEX.action, action.id)
                 bulk.add(operation)
             }
             return !bulk.get().hasFailures()
@@ -110,8 +113,8 @@ class IndexService implements IsSearchClient {
 
     boolean analyzeApplications() {
         def results = client
-                .prepareSearch(ESConfig.INDEX_NAME)
-                .setTypes(ESConfig.INDEX.beacon)
+                .prepareSearch(esConfig.getIndexName())
+                .setTypes(esConfig.INDEX.beacon)
                 .addAggregation(
                     AggregationBuilders.terms("applicationSize").field("applicationIds").size(0)
                         .subAggregation(AggregationBuilders.terms("environments").field("environment").size(0))
@@ -121,7 +124,7 @@ class IndexService implements IsSearchClient {
         Terms terms = results.aggregations.get("applicationSize")
         terms.buckets.each { bucket ->
             bulk.add(
-                    new IndexRequest(ESConfig.INDEX_NAME, ESConfig.INDEX.application)
+                    new IndexRequest(esConfig.getIndexName(), esConfig.INDEX.application)
                             .id(bucket.key).source([
                             beacons: bucket.docCount,
                             environment: bucket.aggregations.get("environments")?.buckets[0].key
@@ -141,15 +144,15 @@ class IndexService implements IsSearchClient {
 
     def analyzeApplication(SyncApplicationRequest sa) {
         def results = client
-                .prepareSearch(ESConfig.INDEX_NAME)
-                .setTypes(ESConfig.INDEX.beacon)
+                .prepareSearch(esConfig.getIndexName())
+                .setTypes(esConfig.INDEX.beacon)
                 .setQuery(QueryBuilders.matchQuery("applicationId", sa.apiKey))
                 .addAggregation(AggregationBuilders.terms("applicationSize").field("applicationIds").size(0))
                 .execute().actionGet()
         Terms terms = results.aggregations.get("applicationSize")
 
         client
-                .prepareIndex(ESConfig.INDEX_NAME, ESConfig.INDEX.application)
+                .prepareIndex(esConfig.getIndexName(), esConfig.INDEX.application)
                 .setId(sa.apiKey)
                 .setSource([
                         beacons: 1

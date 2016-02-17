@@ -21,6 +21,9 @@ class Ping {
     @Autowired
     private Environment env
 
+    @Autowired
+    ESConfig esConfig
+
     @Value('${application.version}')
     String applicationVersion
 
@@ -30,7 +33,7 @@ class Ping {
             return [
                     version: applicationVersion
             ] +
-                    getCounts(ESConfig.INDEX_NAME, ESConfig.INDEX)
+                    getCounts(esConfig.getIndexName(), esConfig.INDEX)
         } catch (Exception e) {
             return [
                     errorType   : e.class.name,
