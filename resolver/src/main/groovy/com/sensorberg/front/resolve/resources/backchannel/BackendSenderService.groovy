@@ -5,6 +5,7 @@ import com.sensorberg.front.resolve.config.ESConfig
 import com.sensorberg.front.resolve.resources.backchannel.domain.BackchannelResponseWrapper
 import com.sensorberg.front.resolve.resources.layout.domain.LayoutCtx
 import groovy.util.logging.Slf4j
+import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.action.update.UpdateRequest
 import org.elasticsearch.client.Client
 import org.springframework.beans.factory.annotation.Autowired
@@ -38,7 +39,7 @@ class BackendSenderService {
     public Future<Void> send(LayoutCtx ctx) throws InterruptedException {
         // todo: should we send ctx when there are no actions?
         if (ctx?.request?.activity?.actions == null || ctx.request.activity.actions.size() == 0) {
-            return updateAsDelivered(ctx)
+            return;
         }
         def backchannelUrl = ctx?.syncApplicationRequest?.backchannelUrl
         // do we have back channel defined?
@@ -70,5 +71,12 @@ class BackendSenderService {
         client.update(new UpdateRequest(esConfig.getIndexName(), esConfig.INDEX.layoutLog, ctx.id).doc(
                 reportedBack: [dt: new Date(), success: true, type: "private"]
         )).get()
+    }
+
+    void write(LayoutCtx ctx) {
+        client.prepareIndex(ESConfig.INDEX_NAME, ESConfig.INDEX.layoutLog, ctx.id)
+                .setSource(mapper.writeValueAsBytes(ctx))
+                .setTTL(ESConfig.TTL_LOG)
+                .execute().actionGet()
     }
 }
