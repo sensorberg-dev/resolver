@@ -67,6 +67,7 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.3.2'
     compile 'com.vividsolutions:jts:1.11'
 
+    // Lombok
     compile("org.projectlombok:lombok:1.16.6")
 
     compile 'org.apache.qpid:qpid-jms-client:0.7.0'

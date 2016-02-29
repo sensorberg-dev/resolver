@@ -41,11 +41,11 @@ class LogService implements IsSearchClient {
     }
 
     public void log(LayoutCtx ctx) {
+        // Write to elastic search
         client.prepareIndex(esConfig.getIndexName(), TYPE.LAYOUT.indexName, ctx.id)
                 .setSource(mapper.writeValueAsBytes(ctx))
-                .setTTL(esConfig.TTL_LOG)
+                .setTTL(ESConfig.TTL_LOG)
                 .execute().actionGet()
-
 
         // Write to azure event hub
         azureEventHubService.sendObjectMessage(ctx);
