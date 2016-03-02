@@ -11,6 +11,7 @@ import groovy.util.logging.Slf4j
 import org.apache.http.client.utils.URLEncodedUtils
 import org.apache.http.message.BasicNameValuePair
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 
@@ -130,4 +131,12 @@ class SynchronizationService implements IsSearchClient {
         return response
     }
 
+    /**
+     * Force a sync every hour with a initial delay of 1 minute
+     */
+    @Scheduled(initialDelay=60000L, fixedRate=3600000L)
+    private void doForcedSyncScheduled() {
+        log.info("Called forced sync by schedule.")
+        synchronizeForce();
+    }
 }
