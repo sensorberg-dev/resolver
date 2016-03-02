@@ -1,10 +1,6 @@
 package com.sensorberg.front.resolve.config
-
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-
-import javax.annotation.Resource
-
 /**
  * elastic search configuration with main index name and types
  */
@@ -36,4 +32,7 @@ class ESConfig {
         return indexName;
     }
 
+    public String getLayoutLogName(){
+        return INDEX.layoutLog
+    }
 }

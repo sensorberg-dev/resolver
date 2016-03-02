@@ -1,5 +1,4 @@
 package com.sensorberg.front.resolve.resources.synchronization
-
 import com.sensorberg.front.resolve.producers.els.domain.IsSearchClient
 import com.sensorberg.front.resolve.resources.index.IndexService
 import com.sensorberg.front.resolve.resources.index.VersionService
@@ -11,11 +10,11 @@ import groovy.util.logging.Slf4j
 import org.apache.http.client.utils.URLEncodedUtils
 import org.apache.http.message.BasicNameValuePair
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 
 import javax.annotation.Resource
-
 /**
  * synchronization service
  * here you can add and manipulate synchronizations
@@ -198,6 +197,14 @@ class SynchronizationService implements IsSearchClient {
                 SynchronizationResponse.class)
 
         return response
+    }
+
+    /**
+     * Force a sync every hour with a initial delay of 1 minute
+     */
+    @Scheduled(initialDelay=60000, fixedRate=3600000)
+    private void doForcedSyncScheduled() {
+        synchronizeForce();
     }
 
 }

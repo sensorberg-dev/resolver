@@ -1,12 +1,11 @@
 package com.sensorberg.front.resolve.resources.index
-
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.sensorberg.front.resolve.config.ESConfig
+import com.sensorberg.front.resolve.producers.els.ESClientProducer
+import com.sensorberg.front.resolve.producers.els.domain.IsSearchClient
 import com.sensorberg.front.resolve.resources.index.domain.SyncApplicationRequest
 import com.sensorberg.front.resolve.resources.layout.domain.Action
 import com.sensorberg.front.resolve.resources.layout.domain.Beacon
-import com.sensorberg.front.resolve.producers.els.ESClientProducer
-import com.sensorberg.front.resolve.producers.els.domain.IsSearchClient
 import org.elasticsearch.action.delete.DeleteRequest
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.index.query.QueryBuilders
@@ -14,7 +13,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-
 /**
  * index service responsible for layout synchronization with backend
  * in order to enable synchronization in the first place you need to go to
@@ -159,4 +157,5 @@ class IndexService implements IsSearchClient {
                 ])
 
     }
+
 }

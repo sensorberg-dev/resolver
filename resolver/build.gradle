@@ -61,6 +61,8 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.5.3'
     compile 'org.apache.httpcomponents:httpclient:4.4.1'
 
+    compile 'joda-time:joda-time:2.7'
+
     compile ('org.elasticsearch:elasticsearch-groovy:1.5.2') {
         exclude module: "groovy-all"
     }
@@ -72,18 +74,8 @@ dependencies {
 
     compile 'org.apache.qpid:qpid-jms-client:0.7.0'
 
-    // Azure SDK
-    compile "com.microsoft.azure:azure-management:0.8.0"
-    compile "com.microsoft.azure:azure-management-compute:0.8.0"
-    compile "com.microsoft.azure:azure-management-network:0.8.0"
-    compile "com.microsoft.azure:azure-management-sql:0.8.0"
-    compile "com.microsoft.azure:azure-management-storage:0.8.0"
-    compile "com.microsoft.azure:azure-management-websites:0.8.0"
-    compile "com.microsoft.azure:azure-media:0.9.2"
-    compile "com.microsoft.azure:azure-servicebus:0.9.2"
-    compile "com.microsoft.azure:azure-serviceruntime:0.9.2"
-    compile "com.microsoft.azure:azure-serviceruntime:0.9.2"
-    compile "com.microsoft.azure:azure-core:0.9.2"
+    // Azure storage libs
+    compile 'com.microsoft.azure:azure-storage:4.0.0'
 
     compile "commons-io:commons-io:2.4"
 
