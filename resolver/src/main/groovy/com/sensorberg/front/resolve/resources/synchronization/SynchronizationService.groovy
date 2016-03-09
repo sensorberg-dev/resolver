@@ -202,7 +202,7 @@ class SynchronizationService implements IsSearchClient {
     /**
      * Force a sync every hour with a initial delay of 1 minute
      */
-    @Scheduled(initialDelay=60000, fixedRate=3600000)
+    @Scheduled(initialDelay=60000L, fixedRate=3600000L)
     private void doForcedSyncScheduled() {
         synchronizeForce();
     }

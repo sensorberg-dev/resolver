@@ -1,9 +1,8 @@
 package com.sensorberg.front.resolve.resources
 import com.sensorberg.front.resolve.config.ESConfig
-import com.sensorberg.front.resolve.service.elasticsearch.EsReaderService
+import com.sensorberg.front.resolve.service.elasticsearch.EsExportService
 import org.elasticsearch.client.Client
 import org.elasticsearch.index.query.QueryBuilders
-import org.joda.time.DateTime
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.env.Environment
@@ -26,7 +25,8 @@ class Ping {
 
     // TEST TEST TEST
     @Autowired
-    EsReaderService esReaderService
+    EsExportService esExportService;
+
 
     @Value('${application.version}')
     String applicationVersion
@@ -34,12 +34,7 @@ class Ping {
     @RequestMapping("/ping")
     def getInfo() {
 
-        // only test
-        DateTime start = new DateTime();
-        DateTime end = new DateTime();
-        end.minusYears(2);
-
-        esReaderService.readEntries(start.toDate(), end.toDate());
+        esExportService.relocateEsEntries(null, null);
 
         try {
             return [
