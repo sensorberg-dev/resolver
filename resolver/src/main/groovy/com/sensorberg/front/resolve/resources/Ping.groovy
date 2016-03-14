@@ -1,6 +1,5 @@
 package com.sensorberg.front.resolve.resources
 import com.sensorberg.front.resolve.config.ESConfig
-import com.sensorberg.front.resolve.service.elasticsearch.EsExportService
 import org.elasticsearch.client.Client
 import org.elasticsearch.index.query.QueryBuilders
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,18 +22,11 @@ class Ping {
     @Autowired
     ESConfig esConfig
 
-    // TEST TEST TEST
-    @Autowired
-    EsExportService esExportService;
-
-
     @Value('${application.version}')
     String applicationVersion
 
     @RequestMapping("/ping")
     def getInfo() {
-
-        esExportService.relocateEsEntries(null, null);
 
         try {
             return [

@@ -1,7 +1,7 @@
 package com.sensorberg.front.resolve.service;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Hashtable;
+import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 import javax.jms.BytesMessage;
@@ -15,6 +15,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,18 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class AzureEventHubService {
+
+    @Value("${connectionfactory.SBCF}")
+    private String connectionString;
+
+    @Value("${property.connectionfactory.SBCF.username}")
+    private String user;
+
+    @Value("${property.connectionfactory.SBCF.password}")
+    private String password;
+
+    @Value("${queue.EventHub}")
+    private String eventHub;
 
     private static String messageSourceValue = "\"messageSource\":\"RESOLVER\"";
 
@@ -49,18 +62,23 @@ public class AzureEventHubService {
 
         log.info("init connection called");
 
-        // Configure JNDI environment
-        Hashtable<String, String> env = new Hashtable<>();
+        // Set the properties ...
+        Properties properties = new Properties();
+        properties.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.qpid.jms.jndi.JmsInitialContextFactory");
 
-        env.put(Context.INITIAL_CONTEXT_FACTORY, "org.apache.qpid.jms.jndi.JmsInitialContextFactory");
+        properties.put("connectionfactory.SBCF", connectionString);
+        properties.put("queue.EventHub", eventHub);
+        properties.put("property.connectionfactory.SBCF.username", user);
+        properties.put("property.connectionfactory.SBCF.password", password);
 
-        env.put(Context.PROVIDER_URL, "application.properties");
         Context context = null;
-        try {
 
-            context = new InitialContext(env);
+        try {
+            context = new InitialContext(properties);
+
             ConnectionFactory cf = (ConnectionFactory) context.lookup("SBCF");
             Destination queue = (Destination) context.lookup("EventHub");
+            // Create Connection
             Connection connection = cf.createConnection();
 
             connection.setExceptionListener(exception -> {
