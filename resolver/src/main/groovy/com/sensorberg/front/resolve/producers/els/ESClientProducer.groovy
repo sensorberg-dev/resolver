@@ -1,5 +1,4 @@
 package com.sensorberg.front.resolve.producers.els
-
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.sensorberg.front.resolve.config.ESConfig
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service
 
 import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
-
 /**
  * elastic search client producer
  * this one will use configuration in format protocol://<server1>[,<server2>]:<port>/<clusterName>

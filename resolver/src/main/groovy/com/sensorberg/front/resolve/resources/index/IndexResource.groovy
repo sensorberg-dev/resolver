@@ -49,7 +49,4 @@ class IndexResource {
                 (to != null) ? DateTime.parse(to) : null);
     }
 
-
-
-
 }
