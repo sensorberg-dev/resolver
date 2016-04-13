@@ -3,6 +3,7 @@ package com.sensorberg.front.resolve.resources.application
 import com.sensorberg.front.resolve.config.ESConfig
 import com.sensorberg.front.resolve.producers.els.domain.IsSearchClient
 import com.sensorberg.front.resolve.resources.application.domain.Application
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
@@ -20,13 +21,16 @@ class ApplicationService implements IsSearchClient {
     @Value('${apiKey.largeCompany}')
     public static int largeCompany
 
+    @Autowired
+    ESConfig esConfig
+
     public boolean isLargeApplication(String apiKey) {
-        def response = client.prepareGet(ESConfig.INDEX_NAME, ESConfig.INDEX.application, apiKey).execute().actionGet()
+        def response = client.prepareGet(esConfig.getIndexName(), esConfig.INDEX.application, apiKey).execute().actionGet()
         return response.exists && response.fields.beacons.value > largeCompany
     }
 
     public Application getByApiKey(String apiKey) {
-        client.prepareGet(ESConfig.INDEX_NAME, ESConfig.INDEX.application, apiKey).get().asObject(Application)
+        client.prepareGet(esConfig.getIndexName(), esConfig.INDEX.application, apiKey).get().asObject(Application)
     }
 
 }

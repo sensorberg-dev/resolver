@@ -1,5 +1,4 @@
 package com.sensorberg.front.resolve.resources.backchannel
-
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.sensorberg.front.resolve.config.ESConfig
 import com.sensorberg.front.resolve.resources.backchannel.domain.BackchannelResponseWrapper
@@ -11,13 +10,11 @@ import org.elasticsearch.client.Client
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestClientException
 import org.springframework.web.client.RestTemplate
 
 import java.util.concurrent.Future
-
 /**
- * backend sender
+ * backend messageProducer
  */
 @Slf4j
 @Service
@@ -31,6 +28,9 @@ class BackendSenderService {
 
     @Autowired
     RestTemplate restTemplate
+
+    @Autowired
+    ESConfig esConfig
 
     @Async
     public Future<Void> send(LayoutCtx ctx) throws InterruptedException {
@@ -53,18 +53,21 @@ class BackendSenderService {
     }
 
     private void updateAsDelivered(LayoutCtx ctx, BackchannelResponseWrapper response = new BackchannelResponseWrapper(actionsResolved: 0)) {
-        ctx.reportedBack = [dt: new Date(), success: true, actionsResolved: response.actionsResolved]
-        write(ctx);
+        client.update(new UpdateRequest(esConfig.getIndexName(), esConfig.INDEX.layoutLog, ctx.id).doc(
+                reportedBack: [dt: new Date(), success: true, actionsResolved: response.actionsResolved]
+        )).get()
     }
 
     private void updateLastError(LayoutCtx ctx, String problem) {
-        ctx.reportedBack = [dt: new Date(), success: false, problem: problem]
-        write(ctx);
+        client.update(new UpdateRequest(esConfig.getIndexName(), esConfig.INDEX.layoutLog, ctx.id).doc(
+                reportedBack: [dt: new Date(), success: false, problem: problem]
+        )).get()
     }
 
     private void updateAsPrivate(LayoutCtx ctx) {
-        ctx.reportedBack =  [dt: new Date(), success: true, type: "private"]
-        write(ctx);
+        client.update(new UpdateRequest(esConfig.getIndexName(), esConfig.INDEX.layoutLog, ctx.id).doc(
+                reportedBack: [dt: new Date(), success: true, type: "private"]
+        )).get()
     }
 
     void write(LayoutCtx ctx) {
