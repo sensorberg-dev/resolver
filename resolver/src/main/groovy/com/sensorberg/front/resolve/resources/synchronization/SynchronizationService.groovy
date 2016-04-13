@@ -204,7 +204,8 @@ class SynchronizationService implements IsSearchClient {
      */
     @Scheduled(initialDelay=60000L, fixedRate=3600000L)
     private void doForcedSyncScheduled() {
+
+        log.info("Called forced sync by schedule.")
         synchronizeForce();
     }
-
 }
