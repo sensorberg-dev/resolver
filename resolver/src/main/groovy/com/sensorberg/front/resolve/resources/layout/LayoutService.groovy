@@ -1,18 +1,17 @@
 package com.sensorberg.front.resolve.resources.layout
-
 import com.sensorberg.front.resolve.resources.application.ApplicationService
 import com.sensorberg.front.resolve.resources.application.domain.Application
 import com.sensorberg.front.resolve.resources.backchannel.BackendSenderService
-import com.sensorberg.front.resolve.resources.synchronization.SynchronizationService
 import com.sensorberg.front.resolve.resources.index.VersionService
 import com.sensorberg.front.resolve.resources.layout.domain.LayoutCtx
 import com.sensorberg.front.resolve.resources.layout.domain.LayoutRequest
 import com.sensorberg.front.resolve.resources.layout.domain.LayoutResponse
 import com.sensorberg.front.resolve.resources.logs.LogService
+import com.sensorberg.front.resolve.resources.synchronization.SynchronizationService
+import com.sensorberg.front.resolve.service.AzureEventHubService
 import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-
 /**
  * layout service
  */
@@ -37,13 +36,30 @@ class LayoutService {
     @Autowired
     VersionService versionService
 
+    @Autowired
+    AzureEventHubService azureEventHubService
+
+
     LayoutCtx layout(LayoutCtx ctx) {
         def measuredResponse = measureTime({
             computeLayout(ctx)
         })
         LayoutCtx resultCtx = measuredResponse.result
         resultCtx.elapsedTime = measuredResponse.elapsedTime
-        backendService.send(resultCtx)
+
+        //log to elasticsearch
+        logService.log(ctx)
+
+        //async
+
+            // Write to azure event hub
+            azureEventHubService.sendObjectMessage(ctx);
+
+            //send to main backend (backchannel)
+            backendService.send(resultCtx)
+
+        // end of async
+
         return resultCtx
     }
 
@@ -56,6 +72,7 @@ class LayoutService {
             ctx.response = new LayoutResponse(currentVersion: true)
             return ctx
         }
+
         Application application = applicationService.getByApiKey(ctx.request.apiKey)
         if(application == null) {
             ctx.response = null

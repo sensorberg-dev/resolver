@@ -1,14 +1,10 @@
 package com.sensorberg.front.resolve.helpers.aspects
-
 import groovy.util.logging.Slf4j
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
-import org.aspectj.lang.annotation.Aspect
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.actuate.metrics.Metric
 import org.springframework.boot.actuate.metrics.repository.MetricRepository
-import org.springframework.stereotype.Component
-
 /**
  * WIP for service performance monitoring
  */

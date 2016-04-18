@@ -14,7 +14,9 @@ to have your own instance.
 
 #Dependencies
 
-Only an instance of [elastic search](https://www.elastic.co) needs to be available on your machine, or available to your machine.
+###Elasticsearch
+
+An instance of [elastic search](https://www.elastic.co) needs to be available on your machine, or available to your machine.
 
 ```
 brew install elasticsearch
@@ -39,6 +41,20 @@ spring.jackson.date-format=com.fasterxml.jackson.databind.util.ISO8601DateFormat
 apiKey.largeCompany=10000
 ```
 The name of the cluster, when installing from brew is elasticsearch_brew
+
+###Microsoft Azure
+
+The resolver writes JSON data into a Azure Event Hub. The properties of the Event Hub connection are stored in the application.properties file.
+
+```
+connectionfactory.SBCF=amqps://{ServiceBus name}.servicebus.windows.net?amqp.idleTimeout=120000
+
+property.connectionfactory.SBCF.username={username}
+property.connectionfactory.SBCF.password={password}
+
+queue.EventHub={eventHub name}
+
+```
 
 #Standalone
 
@@ -74,6 +90,41 @@ Total time: 7.354 secs
  :: Spring Boot ::        (v1.2.2.RELEASE)
  [...]
 ```
+
+### Change port
+
+You can change the port of the running Spring Boot Application by adding/changing the following Entry to the file application.properties
+
+```
+server.port=8090
+```
+
+### Change log level
+
+You can change the log level of the Spring Boot Application by adding/changing the following Entry to the file application.properties
+
+```
+logging.level.com.sensorberg=DEBUG
+```
+
+### Change ElasticSearch Connection String and Index
+
+You can change the ElasticSearch Connection String and the Index in the application.properties
+
+```
+elasticsearch.connectionString=http://localhost/:9300/elasticsearch_xyz
+elasticsearch.indexName=beacon_layout
+
+```
+
+Alternative you can set these properties to the Java VM at the startup of the Spring Boot Application
+
+java -jar service-resolve.jar -Delasticsearch.indexName=beacon_layout -Delasticsearch.connectionString=http/://localhost/:9300/elasticsearch_xyz
+
+Setting properties via VM overrides the settings of the application.properties.
+
+
+
 
 #API endpoints:
 

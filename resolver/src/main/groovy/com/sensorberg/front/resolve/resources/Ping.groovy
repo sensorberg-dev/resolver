@@ -1,5 +1,4 @@
 package com.sensorberg.front.resolve.resources
-
 import com.sensorberg.front.resolve.config.ESConfig
 import org.elasticsearch.client.Client
 import org.elasticsearch.index.query.QueryBuilders
@@ -8,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.env.Environment
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-
 /**
  * ping service / provides basic information about syncApplicationRequest and database counts
  */
@@ -21,16 +19,20 @@ class Ping {
     @Autowired
     private Environment env
 
+    @Autowired
+    ESConfig esConfig
+
     @Value('${application.version}')
     String applicationVersion
 
     @RequestMapping("/ping")
     def getInfo() {
+
         try {
             return [
                     version: applicationVersion
             ] +
-                    getCounts(ESConfig.INDEX_NAME, ESConfig.INDEX)
+                    getCounts(esConfig.getIndexName(), esConfig.INDEX)
         } catch (Exception e) {
             return [
                     errorType   : e.class.name,
