@@ -7,9 +7,7 @@ import com.sensorberg.front.resolve.producers.els.domain.IsSearchClient
 import com.sensorberg.front.resolve.resources.index.domain.SyncApplicationRequest
 import com.sensorberg.front.resolve.resources.index.domain.SynchronizationLogItem
 import org.apache.commons.lang3.StringUtils
-import org.elasticsearch.common.joda.time.DateTime
 import org.elasticsearch.index.query.MatchAllQueryBuilder
-import org.elasticsearch.index.query.QueryBuilder
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.sort.SortOrder
 import org.springframework.beans.factory.annotation.Autowired
@@ -24,16 +22,19 @@ class SynchronizationLogProvider implements IsSearchClient {
     @Autowired
     ObjectMapper mapper
 
+    @Autowired
+    ESConfig esConfig
+
     @Monitored
     public SynchronizationLogItem getLastLogItem(SyncApplicationRequest sa) {
         def queryResult = client
-                .prepareSearch(ESConfig.INDEX_NAME)
-                .setTypes(ESConfig.INDEX.synchronizationLog)
+                .prepareSearch(esConfig.getIndexName())
+                .setTypes(esConfig.INDEX.synchronizationLog)
                 .setQuery(QueryBuilders.boolQuery()
-                    .must(QueryBuilders.matchQuery("synchronizationId", sa.id))
-                    .must(QueryBuilders.matchQuery("status", true))
+                .must(QueryBuilders.matchQuery("synchronizationId", sa.id))
+                .must(QueryBuilders.matchQuery("status", true))
         )
-                //.setQuery(QueryBuilders.matchQuery("synchronizationId", sa.id))
+        //.setQuery(QueryBuilders.matchQuery("synchronizationId", sa.id))
                 .addSort("tillVersionId", SortOrder.DESC)
                 .setSize(1).get()
         return (queryResult.hits.size() == 1) ?
@@ -44,7 +45,7 @@ class SynchronizationLogProvider implements IsSearchClient {
     @Monitored
     public SynchronizationLogItem putLogItem(SynchronizationLogItem item) {
         def response = client
-                .prepareIndex(ESConfig.INDEX_NAME, ESConfig.INDEX.synchronizationLog)
+                .prepareIndex(esConfig.getIndexName(), esConfig.INDEX.synchronizationLog)
                 .setRefresh(true)
                 .setSource(mapper.writeValueAsBytes(item))
                 .setTTL(ESConfig.TTL_SYNCHRONIZATION_LOG)
@@ -53,8 +54,8 @@ class SynchronizationLogProvider implements IsSearchClient {
     }
 
     public Collection<SynchronizationLogItem> recentLogs(int size = 10, int from = 0) {
-        def results = client.prepareSearch(ESConfig.INDEX_NAME)
-                .setTypes(ESConfig.INDEX.synchronizationLog)
+        def results = client.prepareSearch(esConfig.getIndexName())
+                .setTypes(esConfig.INDEX.synchronizationLog)
                 .setQuery(QueryBuilders.matchAllQuery())
                 .addSort("synchronizationDate", SortOrder.DESC)
                 .setSize(size)
@@ -67,23 +68,23 @@ class SynchronizationLogProvider implements IsSearchClient {
 
     public SyncApplicationRequest saveSyncApplication(SyncApplicationRequest syncApp) {
         if(StringUtils.isEmpty(syncApp.id)) {
-            def response = client.prepareIndex(ESConfig.INDEX_NAME, ESConfig.INDEX.syncApplications)
-                .setSource(mapper.writeValueAsBytes(syncApp))
-                .get()
+            def response = client.prepareIndex(esConfig.getIndexName(), esConfig.INDEX.syncApplications)
+                    .setSource(mapper.writeValueAsBytes(syncApp))
+                    .get()
             syncApp.id = response.id
             return syncApp
         }
-        client.prepareUpdate(ESConfig.INDEX_NAME, ESConfig.INDEX.syncApplications, syncApp.id)
-            .setDoc(mapper.writeValueAsBytes(syncApp))
-            .setDocAsUpsert(true)
-            .get()
+        client.prepareUpdate(esConfig.getIndexName(), esConfig.INDEX.syncApplications, syncApp.id)
+                .setDoc(mapper.writeValueAsBytes(syncApp))
+                .setDocAsUpsert(true)
+                .get()
         return syncApp
     }
 
     public List<SyncApplicationRequest> listSynchronizations() {
-        def result = client.prepareSearch(ESConfig.INDEX_NAME)
-                .setTypes(ESConfig.INDEX.syncApplications)
-                .setSize(ESConfig.MAX_SEARCH_RESULTS)
+        def result = client.prepareSearch(esConfig.getIndexName())
+                .setTypes(esConfig.INDEX.syncApplications)
+                .setSize(esConfig.MAX_SEARCH_RESULTS)
                 .setQuery(new MatchAllQueryBuilder())
                 .get()
         if (result.hits.totalHits == 0) {
@@ -98,14 +99,14 @@ class SynchronizationLogProvider implements IsSearchClient {
     }
 
     public boolean delete(String synchronizationId) {
-        client.prepareDeleteByQuery(ESConfig.INDEX_NAME)
-                .setTypes(ESConfig.INDEX.syncApplications)
+        client.prepareDeleteByQuery(esConfig.getIndexName())
+                .setTypes(esConfig.INDEX.syncApplications)
                 .setQuery(QueryBuilders.matchQuery("_id", synchronizationId))
                 .execute().actionGet();
         return true;
     }
 
     public SyncApplicationRequest getById(String id) {
-        client.prepareGet(ESConfig.INDEX_NAME, ESConfig.INDEX.syncApplications, id).get().asObject(SyncApplicationRequest)
+        client.prepareGet(esConfig.getIndexName(), esConfig.INDEX.syncApplications, id).get().asObject(SyncApplicationRequest)
     }
 }

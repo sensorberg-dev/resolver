@@ -8,4 +8,5 @@ class SynchronizationResponse {
     long tillVersionId
     Collection<Beacon> beacons
     Collection<Action> actions
+
 }

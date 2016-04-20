@@ -15,8 +15,9 @@ class ScheduledSynchronization {
     @Autowired
     SynchronizationService service
 
-    @Scheduled(fixedDelay = 60000l)
+    // Call every 5 minutes
+    @Scheduled(fixedDelay = 300000l)
     void synchronize() {
-        service.synchronize()
+        service.synchronizeForce()
     }
 }

@@ -10,29 +10,46 @@ buildscript {
     }
 }
 
-// Get Version from GIT
-try {
-    ext.branch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
-    ext.hash = 'git rev-parse --short HEAD'.execute().text.trim()
+// Propagate VM properties to Spring boot
+run {
+    systemProperties = System.properties
+}
 
-    println "Version found: $branch:$hash"
+bootRun {
+    systemProperties = System.properties
+}
+
+// Get Version from GIT
+def branch= 'unknown'
+def hash= 'unknown'
+
+try {
+    branch = 'git rev-parse --abbrev-ref HEAD'.execute().text.trim()
+    hash = 'git rev-parse --short HEAD'.execute().text.trim()
 
 } catch (e) {
     println "unable to get git HEAD commit $e.message"
-    ext.branch = 'unknown'
-    ext.hash = 'unknown'
 }
 
+println "Version found: $branch:$hash"
+
 // Write version to prop file
-ant.propertyfile(
-        file: "${projectDir}/src/main/resources/application.properties") {
-    entry( key: "application.version", value: "$branch:$hash", operation: "=")
+task setVersionInfo ()  << {
+
+    ant.propertyfile(
+            file: "${projectDir}/src/main/resources/application.properties") {
+        entry( key: "application.version", value: "$branch:$hash", operation: "=")
+    }
 }
+
+// Set Version before processResources task
+processResources.dependsOn setVersionInfo
+
+jar.dependsOn setVersionInfo
 
 jar {
     manifest {
         attributes("Implementation-Version": "$branch:$hash")
-
     }
 }
 
@@ -44,12 +61,28 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.5.3'
     compile 'org.apache.httpcomponents:httpclient:4.4.1'
 
+    compile 'joda-time:joda-time:2.7'
+
     compile ('org.elasticsearch:elasticsearch-groovy:1.5.2') {
         exclude module: "groovy-all"
     }
     compile 'org.apache.commons:commons-lang3:3.3.2'
     compile 'com.vividsolutions:jts:1.11'
 
+    // Lombok
+    compile("org.projectlombok:lombok:1.16.6")
+
+    compile 'org.apache.qpid:qpid-jms-client:0.7.0'
+
+    // Azure storage libs
+    compile 'com.microsoft.azure:azure-storage:4.0.0'
+
+    compile "commons-io:commons-io:2.4"
+
+    // Json parsing
+    compile "com.google.code.gson:gson:2.5"
+
     testCompile 'org.springframework.boot:spring-boot-starter-test:1.2.3.RELEASE'
     testCompile 'org.spockframework:spock-spring:1.0-groovy-2.4'
+
 }

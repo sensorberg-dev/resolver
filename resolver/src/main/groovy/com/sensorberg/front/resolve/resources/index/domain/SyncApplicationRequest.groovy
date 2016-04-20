@@ -17,4 +17,18 @@ class SyncApplicationRequest {
      * when not set system will NOT send back any data about user activity
      */
     String backchannelUrl
+
+
+    @Override
+    public String toString() {
+
+        StringBuffer sb = new StringBuffer();
+
+        sb.append("id:" + id)
+        sb.append(" url:" + url)
+        sb.append(" backchannelUrl:" + backchannelUrl)
+
+        return sb
+    }
+
 }
