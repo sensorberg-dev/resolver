@@ -72,7 +72,7 @@ public class EsReaderService {
                     result.add(resultMap);
                 }
             }.until {
-                response.getHits().hits().length > 0
+                response.getHits().hits().length <= 0
             }
 
 
