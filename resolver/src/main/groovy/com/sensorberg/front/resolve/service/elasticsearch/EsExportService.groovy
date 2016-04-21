@@ -19,7 +19,7 @@ import com.microsoft.azure.storage.StorageException;
 import com.sensorberg.front.resolve.service.AzureBlobStorageService;
 import com.sensorberg.front.resolve.service.AzureEventHubService;
 
-import lombok.extern.slf4j.Slf4j;
+import groovy.util.logging.Slf4j;
 
 /**
  * Created by Andreas Dörner on 01.03.16.
