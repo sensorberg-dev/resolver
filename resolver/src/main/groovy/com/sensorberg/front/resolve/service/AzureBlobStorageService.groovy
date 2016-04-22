@@ -3,7 +3,6 @@ import com.microsoft.azure.storage.CloudStorageAccount
 import com.microsoft.azure.storage.StorageException
 import com.microsoft.azure.storage.blob.*
 import groovy.util.logging.Slf4j
-import lombok.Getter
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.health.Health
 import org.springframework.stereotype.Service
@@ -22,12 +21,18 @@ public class AzureBlobStorageService {
     private String connectionString;
 
     @Value('${azure.blobstorage.container.beaconstatistic}')
-    @Getter
     private String containerBeaconstatistic;
 
     @Value('${azure.blobstorage.nodeid}')
-    @Getter
     private String nodeId;
+
+    public String getContainerBeaconstatistic() {
+        return containerBeaconstatistic
+    }
+
+    public String getNodeId() {
+        return nodeId
+    }
 
     public boolean checkContainer(String containerName) {
         try {
