@@ -106,7 +106,6 @@ public class AzureEventHubService {
             BytesMessage message = sendSession.createBytesMessage();
             message.writeBytes(messageText.getBytes("UTF-8"));
             messageProducer.send(message);
-            log.info("Message sent {}", messageText);
         } catch (JMSException | UnsupportedEncodingException e) {
             log.error("Error sending message", e);
             log.error("Message was not {}", messageText);
