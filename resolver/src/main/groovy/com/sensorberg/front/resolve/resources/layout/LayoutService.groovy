@@ -10,6 +10,7 @@ import com.sensorberg.front.resolve.resources.logs.LogService
 import com.sensorberg.front.resolve.resources.synchronization.SynchronizationService
 import com.sensorberg.front.resolve.service.AzureEventHubService
 import org.apache.commons.lang3.StringUtils
+import org.springframework.util.CollectionUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 /**
