@@ -52,8 +52,15 @@ class LayoutService {
 
         //async
 
-            // Write to azure event hub
-            azureEventHubService.sendObjectMessage(ctx);
+            // Do not write meaningless events to the eventhub
+            // Check if we have a request and activities
+            if (null != ctx.getRequest() && null != ctx.getRequest().getActivity()) {
+                // Check if either actions or events are filled
+                if (!CollectionUtils.isEmpty(ctx.getRequest().getActivity().actions) || !CollectionUtils.isEmpty(ctx.getRequest().getActivity().events)) {
+                   // Write to azure event hub
+                   azureEventHubService.sendObjectMessage(ctx);
+                }
+            }
 
             //send to main backend (backchannel)
             backendService.send(resultCtx)
