@@ -1,4 +1,5 @@
 package com.sensorberg.front.resolve.resources.layout
+
 import com.sensorberg.front.resolve.resources.application.ApplicationService
 import com.sensorberg.front.resolve.resources.application.domain.Application
 import com.sensorberg.front.resolve.resources.backchannel.BackendSenderService
@@ -13,6 +14,7 @@ import org.apache.commons.lang3.StringUtils
 import org.springframework.util.CollectionUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+
 /**
  * layout service
  */
@@ -48,26 +50,28 @@ class LayoutService {
         LayoutCtx resultCtx = measuredResponse.result
         resultCtx.elapsedTime = measuredResponse.elapsedTime
 
-        //log to elasticsearch
-        logService.log(ctx)
+        // Do not process meaningless data
+        // Check if we have a request and activities
+        if (null != ctx.getRequest() && null != ctx.getRequest().getActivity()) {
 
-        //async
+            // Check if either actions or events are filled
+            if (
+                    !CollectionUtils.isEmpty(ctx.getRequest().getActivity().actions) ||
+                    !CollectionUtils.isEmpty(ctx.getRequest().getActivity().events)
+            ) {
+                //log to elasticsearch
+                logService.log(ctx)
 
-            // Do not write meaningless events to the eventhub
-            // Check if we have a request and activities
-            if (null != ctx.getRequest() && null != ctx.getRequest().getActivity()) {
-                // Check if either actions or events are filled
-                if (!CollectionUtils.isEmpty(ctx.getRequest().getActivity().actions) || !CollectionUtils.isEmpty(ctx.getRequest().getActivity().events)) {
-                   // Write to azure event hub
-                   azureEventHubService.sendObjectMessage(ctx);
-                }
+                //async
+                // Write to azure event hub
+                azureEventHubService.sendObjectMessage(ctx);
+
+                //send to main backend (backchannel)
+                backendService.send(resultCtx)
+                // end of async
+
             }
-
-            //send to main backend (backchannel)
-            backendService.send(resultCtx)
-
-        // end of async
-
+        }
         return resultCtx
     }
 
@@ -82,7 +86,7 @@ class LayoutService {
         }
 
         Application application = applicationService.getByApiKey(ctx.request.apiKey)
-        if(application == null) {
+        if (application == null) {
             ctx.response = null
             return ctx
         }
