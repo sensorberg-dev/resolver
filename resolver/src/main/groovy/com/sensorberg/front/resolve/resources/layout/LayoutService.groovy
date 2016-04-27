@@ -52,13 +52,7 @@ class LayoutService {
 
         // Do not process meaningless data
         // Check if we have a request and activities
-        if (null != ctx.getRequest() && null != ctx.getRequest().getActivity()) {
-
-            // Check if either actions or events are filled
-            if (
-                    !CollectionUtils.isEmpty(ctx.getRequest().getActivity().actions) ||
-                    !CollectionUtils.isEmpty(ctx.getRequest().getActivity().events)
-            ) {
+        if (ctx.hasEventsOrActions) {
                 //log to elasticsearch
                 logService.log(ctx)
 
@@ -70,7 +64,6 @@ class LayoutService {
                 backendService.send(resultCtx)
                 // end of async
 
-            }
         }
         return resultCtx
     }

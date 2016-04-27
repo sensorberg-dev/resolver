@@ -25,4 +25,8 @@ class LayoutCtx {
         eventDate = new Date()
     }
 
+    boolean getHasEventsOrActions() {
+        request?.activity?.actions?.empty == false ||
+                request?.activity?.events?.empty == false
+    }
 }
