@@ -41,7 +41,6 @@ class LogService implements IsSearchClient {
         // Write to elastic search
         client.prepareIndex(esConfig.getIndexName(), TYPE.LAYOUT.indexName, ctx.id)
                 .setSource(mapper.writeValueAsBytes(ctx))
-                .setTTL(ESConfig.TTL_LOG)
                 .execute().actionGet()
     }
 
