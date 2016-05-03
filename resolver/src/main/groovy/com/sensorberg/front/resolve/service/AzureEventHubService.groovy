@@ -33,13 +33,31 @@ public class AzureEventHubService {
 
     private static String messageSourceValue = "\"messageSource\":\"RESOLVER\"";
 
+    private static double MAX_MESSAGESIZE = 256D;
+
     private Session sendSession;
     private MessageProducer messageProducer;
 
+    private final Gson gson = new Gson();
+
     @Async
     public void sendObjectMessage(Object input) {
-        Gson gson = new Gson();
         sendJsonMessage(gson.toJson(input));
+    }
+
+    /**
+     * Convert into a JSON String to check length.
+     * True if size is below max message size
+     * @param input
+     * @return
+     */
+    public boolean checkObjectSize(Object input) {
+        final byte[] utf8Bytes = gson.toJson(input).getBytes("UTF-8");
+        final double messageSizeInKB = (utf8Bytes.length / 1024);
+
+        log.info("Message size {} KB", messageSizeInKB);
+
+        return messageSizeInKB < MAX_MESSAGESIZE
     }
 
     /**
