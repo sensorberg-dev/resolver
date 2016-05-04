@@ -84,5 +84,5 @@ dependencies {
 
     testCompile 'org.springframework.boot:spring-boot-starter-test:1.2.3.RELEASE'
     testCompile 'org.spockframework:spock-spring:1.0-groovy-2.4'
-
+    testCompile 'cglib:cglib:2.2'
 }
