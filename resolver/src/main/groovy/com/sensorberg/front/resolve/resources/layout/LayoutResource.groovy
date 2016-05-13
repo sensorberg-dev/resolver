@@ -22,6 +22,21 @@ import static org.springframework.web.bind.annotation.RequestMethod.*
 @RestController
 class LayoutResource {
 
+    def DEFAULT_LAYOUT = [
+        accountProximityUUIDs: [
+                "7367672374000000ffff0000ffff0001",
+                "7367672374000000ffff0000ffff0000",
+                "7367672374000000ffff0000ffff0002",
+                "7367672374000000ffff0000ffff0003",
+                "7367672374000000ffff0000ffff0004",
+                "7367672374000000ffff0000ffff0005",
+                "7367672374000000ffff0000ffff0006",
+                "7367672374000000ffff0000ffff0007",
+                "b9407f30f5f8466eaff925556b57fe6d"
+        ],
+        "actions": []
+    ]
+
     @Resource
     LayoutService service
 
@@ -52,6 +67,12 @@ class LayoutResource {
         )
 
         def httpHeaders = new HttpHeaders()
+        if (rq.method == "GET" && apiKey.equalsIgnoreCase("0000000000000000000000000000000000000000000000000000000000000000")) {
+            httpHeaders.add("Cache-Control", "no-transform,public,max-age=86400,s-maxage=86400")
+            httpHeaders.add("ETag", "${System.currentTimeMillis()}")
+            return new ResponseEntity(DEFAULT_LAYOUT, httpHeaders, HttpStatus.OK)
+        }
+
         def ctx = service.layout(new LayoutCtx(request: request))
         httpHeaders.add("X-lid", ctx.id)
         if(ctx.response == null) {
