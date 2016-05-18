@@ -24,15 +24,19 @@ class LayoutResource {
 
     def DEFAULT_LAYOUT = [
         accountProximityUUIDs: [
-                "7367672374000000ffff0000ffff0001",
                 "7367672374000000ffff0000ffff0000",
+                "7367672374000000ffff0000ffff0001",
                 "7367672374000000ffff0000ffff0002",
                 "7367672374000000ffff0000ffff0003",
                 "7367672374000000ffff0000ffff0004",
                 "7367672374000000ffff0000ffff0005",
                 "7367672374000000ffff0000ffff0006",
                 "7367672374000000ffff0000ffff0007",
-                "b9407f30f5f8466eaff925556b57fe6d"
+                "b9407f30f5f8466eaff925556b57fe6d",
+                "f7826da64fa24e988024bc5b71e0893e",
+                "2f234454cf6d4a0fadf2f4911ba9ffa6",
+                "f0018b9b75094c31a9051a27d39c003c",
+                "23a01af0232a45189c0e323fb773f5ef"
         ],
         "actions": []
     ]
