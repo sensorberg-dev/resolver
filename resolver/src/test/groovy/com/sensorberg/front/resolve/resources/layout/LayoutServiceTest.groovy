@@ -22,7 +22,7 @@ class LayoutServiceTest extends Specification {
 
         then: "no invocation"
         0 * azureEventHubService.checkObjectSize()
-        0 * azureEventHubService.sendObjectMessage()
+        0 * azureEventHubService.sendAsyncObjectMessage()
     }
 
     def "split context both 3500 entries"() {
@@ -60,7 +60,7 @@ class LayoutServiceTest extends Specification {
         tested.splitLayoutCtxAndWriteToAzure(layoutCtx)
 
         then: "count invocation"
-        7 * azureEventHubService.sendObjectMessage(_)
+        7 * azureEventHubService.sendSynchronousObjectMessage(_)
     }
 
     def "split context only events 3500 entries"() {
@@ -91,7 +91,7 @@ class LayoutServiceTest extends Specification {
         tested.splitLayoutCtxAndWriteToAzure(layoutCtx)
 
         then: "count invocation"
-        7 * azureEventHubService.sendObjectMessage(_)
+        7 * azureEventHubService.sendSynchronousObjectMessage(_)
     }
 
     def "split context events 455 actions 4100 entries"() {
@@ -131,6 +131,6 @@ class LayoutServiceTest extends Specification {
         tested.splitLayoutCtxAndWriteToAzure(layoutCtx)
 
         then: "count invocation"
-        9 * azureEventHubService.sendObjectMessage(_)
+        9 * azureEventHubService.sendSynchronousObjectMessage(_)
     }
 }

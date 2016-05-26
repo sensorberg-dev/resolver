@@ -39,11 +39,15 @@ public class AzureEventHubService {
     private MessageProducer messageProducer;
 
     @Async
-    public void sendObjectMessage(Object input) {
-        sendJsonMessage(new Gson().toJson(input));
+    public void sendAsyncObjectMessage(Object input) {
+        sendObjectMessage(input);
     }
 
     public void sendSynchronousObjectMessage(Object input) {
+        sendObjectMessage(input);
+    }
+
+    private void sendObjectMessage(Object input) {
         sendJsonMessage(new Gson().toJson(input));
     }
 

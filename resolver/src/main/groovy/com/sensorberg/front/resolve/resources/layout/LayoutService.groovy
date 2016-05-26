@@ -64,7 +64,7 @@ class LayoutService {
                 // Write to azure event hub
                 // Check message size
                 if (azureEventHubService.checkObjectSize(ctx)) {
-                    azureEventHubService.sendObjectMessage(ctx);
+                    azureEventHubService.sendAsyncObjectMessage(ctx);
                 } else {
                     // Message ist to large, split activity Actions/Event in 1000 Steps
                     splitLayoutCtxAndWriteToAzure(ctx);
