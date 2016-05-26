@@ -38,11 +38,9 @@ public class AzureEventHubService {
     private Session sendSession;
     private MessageProducer messageProducer;
 
-    private final Gson gson = new Gson();
-
     @Async
     public void sendObjectMessage(Object input) {
-        sendJsonMessage(gson.toJson(input));
+        sendJsonMessage(new Gson().toJson(input));
     }
 
     /**
@@ -52,10 +50,10 @@ public class AzureEventHubService {
      * @return
      */
     public boolean checkObjectSize(Object input) {
-        final byte[] utf8Bytes = gson.toJson(input).getBytes("UTF-8");
+        final byte[] utf8Bytes = new Gson().toJson(input).getBytes("UTF-8");
         final double messageSizeInKB = (utf8Bytes.length / 1024);
 
-        log.info("Message size {} KB", messageSizeInKB);
+        log.debug("Message size {} KB", messageSizeInKB);
 
         return messageSizeInKB < MAX_MESSAGESIZE
     }
