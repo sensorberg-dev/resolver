@@ -89,6 +89,8 @@ class LayoutService {
      */
     void splitLayoutCtxAndWriteToAzure(LayoutCtx originalCtx) {
 
+        log.info("splitLayoutCtxAndWriteToAzure called");
+
         if (null == originalCtx || null == originalCtx.getRequest() || null == originalCtx.getRequest().getActivity()) {
             return;
         }
@@ -155,7 +157,8 @@ class LayoutService {
 
             // send message
             count++;
-            azureEventHubService.sendObjectMessage(originalCtx);
+            // Send this message synchron, because will make changes on the originalCtx
+            azureEventHubService.sendSynchronousObjectMessage(originalCtx);
 
             startPosition += splitStep;
 
