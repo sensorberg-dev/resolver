@@ -43,6 +43,10 @@ public class AzureEventHubService {
         sendJsonMessage(new Gson().toJson(input));
     }
 
+    public void sendSynchronousObjectMessage(Object input) {
+        sendJsonMessage(new Gson().toJson(input));
+    }
+
     /**
      * Convert into a JSON String to check length.
      * True if size is below max message size
