@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
  */
 @JsonInclude(value=JsonInclude.Include.NON_EMPTY)
 class LayoutRequestAction {
+    String id
     String eid
     String pid
     Date dt
