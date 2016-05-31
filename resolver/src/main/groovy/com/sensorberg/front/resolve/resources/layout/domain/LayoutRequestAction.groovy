@@ -12,5 +12,4 @@ class LayoutRequestAction {
     Date dt
     String location
     int trigger
-    LayoutRequestReaction reaction
 }
