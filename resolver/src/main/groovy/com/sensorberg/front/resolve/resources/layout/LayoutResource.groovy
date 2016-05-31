@@ -48,6 +48,7 @@ class LayoutResource {
     def layout(
             @RequestHeader(value = "User-Agent", required = false) String userAgent,
             @RequestHeader(value = "X-iid", required = false) String installationId,
+            @RequestHeader(value = "X-aid", required = false) String advertisingIdentifier,
             @RequestHeader(value = "X-Api-Key", required = false) String apiKey,
             @RequestHeader(value = "X-geo", required = false) String geohash,
             @RequestHeader(value = "X-pid", required = false) String pid,
@@ -60,6 +61,7 @@ class LayoutResource {
         def request = new LayoutRequest(
                 diRaw: userAgent,
                 deviceId: installationId,
+                advertisingIdentifier : advertisingIdentifier,
                 di: UserAgentParser.toDeviceIdentifier(userAgent, installationId),
                 apiKey: apiKey,
                 geohash: geohash,

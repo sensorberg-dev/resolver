@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 class LayoutRequest {
     String diRaw
     String deviceId
+    String advertisingIdentifier
     DeviceIdentifier di
     String apiKey
     String geohash
