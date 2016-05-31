@@ -52,30 +52,32 @@ class LayoutService {
         LayoutCtx resultCtx = measuredResponse.result
         resultCtx.elapsedTime = measuredResponse.elapsedTime
 
+        return resultCtx
+    }
 
-
+    boolean sendActivity(LayoutCtx ctx) {
         // Do not process meaningless data
         // Check if we have a request and activities
         if (ctx.hasEventsOrActions) {
-                //log to elasticsearch
-                logService.log(ctx)
+            //log to elasticsearch
+            logService.log(ctx)
 
-                //async
-                // Write to azure event hub
-                // Check message size
-                if (azureEventHubService.checkObjectSize(ctx)) {
-                    azureEventHubService.sendAsyncObjectMessage(ctx);
-                } else {
-                    // Message ist to large, split activity Actions/Event in 1000 Steps
-                    splitLayoutCtxAndWriteToAzure(ctx);
-                }
+            //async
+            // Write to azure event hub
+            // Check message size
+            if (azureEventHubService.checkObjectSize(ctx)) {
+                azureEventHubService.sendAsyncObjectMessage(ctx);
+            } else {
+                // Message ist to large, split activity Actions/Event in 1000 Steps
+                splitLayoutCtxAndWriteToAzure(ctx);
+            }
 
-                //send to main backend (backchannel)
-                backendService.send(resultCtx)
-                // end of async
+            //send to main backend (backchannel)
+            backendService.send(resultCtx)
+            // end of async
 
         }
-        return resultCtx
+        return true;
     }
 
     /**

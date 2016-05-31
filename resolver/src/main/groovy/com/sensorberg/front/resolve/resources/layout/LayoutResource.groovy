@@ -44,8 +44,8 @@ class LayoutResource {
     @Resource
     LayoutService service
 
-    @RequestMapping(value = "/layout", method = [GET, PUT, POST])
-    def layout(
+    @RequestMapping(value = "/layout", method = [GET])
+    def produceLayout(
             @RequestHeader(value = "User-Agent", required = false) String userAgent,
             @RequestHeader(value = "X-iid", required = false) String installationId,
             @RequestHeader(value = "X-Api-Key", required = false) String apiKey,
@@ -54,7 +54,6 @@ class LayoutResource {
             @RequestHeader(value = "X-qos", required = false) String qos,
             @RequestHeader(value = "X-Forwarded-For", required = false) String forwardedFor,
             @RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch,
-            @RequestBody(required = false) LayoutRequestBody activity,
             HttpServletRequest rq) {
 
         def request = new LayoutRequest(
@@ -88,6 +87,39 @@ class LayoutResource {
         httpHeaders.add("Cache-Control", "no-transform,public,max-age=86400,s-maxage=86400")
         httpHeaders.add("ETag", "${System.currentTimeMillis()}")
         return new ResponseEntity(ctx.response, httpHeaders, HttpStatus.OK)
+    }
+
+    @RequestMapping(value = "/layout", method = [PUT, POST])
+    def consumeActivity(
+            @RequestHeader(value = "User-Agent", required = false) String userAgent,
+            @RequestHeader(value = "X-iid", required = false) String installationId,
+            @RequestHeader(value = "X-Api-Key", required = false) String apiKey,
+            @RequestHeader(value = "X-geo", required = false) String geohash,
+            @RequestHeader(value = "X-pid", required = false) String pid,
+            @RequestHeader(value = "X-qos", required = false) String qos,
+            @RequestHeader(value = "X-Forwarded-For", required = false) String forwardedFor,
+            @RequestHeader(value = "If-None-Match", required = false) String ifNoneMatch,
+            @RequestBody(required = true) LayoutRequestBody activity,
+            HttpServletRequest rq) {
+
+        def request = new LayoutRequest(
+                diRaw: userAgent,
+                deviceId: installationId,
+                di: UserAgentParser.toDeviceIdentifier(userAgent, installationId),
+                apiKey: apiKey,
+                geohash: geohash,
+                remoteAddr: forwardedFor ?: rq.remoteAddr,
+                activity: activity,
+                qos: qos,
+                pid: pid,
+                etag: ifNoneMatch
+        )
+        if (service.sendActivity(new LayoutCtx(request: request))){
+            return new ResponseEntity(HttpStatus.OK)
+        } else {
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+
     }
 
 }
