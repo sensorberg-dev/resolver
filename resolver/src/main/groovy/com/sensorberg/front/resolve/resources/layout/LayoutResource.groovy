@@ -73,7 +73,7 @@ class LayoutResource {
         )
 
         def httpHeaders = new HttpHeaders()
-        if (rq.method == "GET" && apiKey.equalsIgnoreCase("0000000000000000000000000000000000000000000000000000000000000000")) {
+        if (rq.method == "GET" && apiKey?.equalsIgnoreCase("0000000000000000000000000000000000000000000000000000000000000000")) {
             httpHeaders.add("Cache-Control", "no-transform,public,max-age=86400,s-maxage=86400")
             httpHeaders.add("ETag", "${System.currentTimeMillis()}")
             return new ResponseEntity(DEFAULT_LAYOUT, httpHeaders, HttpStatus.OK)
