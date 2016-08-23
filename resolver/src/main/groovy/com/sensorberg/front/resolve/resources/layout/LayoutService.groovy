@@ -98,6 +98,8 @@ class LayoutService {
         // Save original lists
         List<LayoutRequestEvent> originalRequestEventList = originalCtx.getRequest().getActivity().getEvents();
         List<LayoutRequestAction> originalRequestActionList = originalCtx.getRequest().getActivity().getActions();
+        final String originalUUID = originalCtx.getId();
+
 
         int originalEventSize = 0
         if (null != originalRequestEventList) {
@@ -155,12 +157,13 @@ class LayoutService {
             originalCtx.getRequest().getActivity().setEvents(splitListEvent);
             originalCtx.getRequest().getActivity().setActions(splitListAction);
 
-            // send message
-            count++;
             // Send this message synchron, because will make changes on the originalCtx
+            originalCtx.setId(originalUUID+ "-" + count);
             azureEventHubService.sendSynchronousObjectMessage(originalCtx);
 
             startPosition += splitStep;
+            count++;
+
 
         }.until {
             eventsFinished && actionFinished;
