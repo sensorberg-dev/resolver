@@ -1,5 +1,6 @@
 package com.sensorberg.front.resolve.service
 import com.google.gson.Gson
+import com.sensorberg.front.resolve.resources.layout.domain.LayoutCtx
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.actuate.health.Health
@@ -48,6 +49,7 @@ public class AzureEventHubService {
     }
 
     private void sendObjectMessage(Object input) {
+        logContextInformation(input);
         sendJsonMessage(new Gson().toJson(input));
     }
 
@@ -141,5 +143,28 @@ public class AzureEventHubService {
 
     public Health getHealth() {
         return messageProducer != null ? new Health.Builder().up().build() : new Health.Builder().down().build();
+    }
+
+    /**
+     * Write LayoutLog information to log.
+     * @param input
+     */
+    private void logContextInformation(Object input) {
+        if (input instanceof LayoutCtx) {
+            LayoutCtx layoutCtx = (LayoutCtx) input;
+            if (layoutCtx.getRequest() != null && layoutCtx.getRequest().getActivity() != null) {
+                int actionCount = 0;
+                if (layoutCtx.getRequest().getActivity().getActions() != null) {
+                    actionCount = layoutCtx.getRequest().getActivity().getActions().size();
+                }
+                int eventCount = 0;
+                if (layoutCtx.getRequest().getActivity().getEvents() != null) {
+                    eventCount = layoutCtx.getRequest().getActivity().getEvents().size();
+                }
+                log.info("Sending JMS Message with: LayoutCtx ID: {}, actions: {}, events: {}.", layoutCtx.getId(), actionCount, eventCount);
+            } else {
+                log.info("Sending JMS Message with: LayoutCtx ID: {}, but request or activity not found.", layoutCtx.getId());
+            }
+        }
     }
 }
