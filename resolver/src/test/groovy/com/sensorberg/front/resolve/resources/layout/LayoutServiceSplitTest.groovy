@@ -11,9 +11,6 @@ import spock.lang.Specification
 /**
  * Created by Andreas Dörner on 25.08.16.
  */
-/**
- * Created by Andreas Dörner on 02.05.16.
- */
 class LayoutServiceSplitTest extends Specification {
 
     def "split null context"() {
@@ -22,7 +19,7 @@ class LayoutServiceSplitTest extends Specification {
         def azureEventHubService = Mock(AzureEventHubService)
 
         when: "split data in layout context"
-        tested.splitLayoutCtxAndWriteToAzure(null)
+        def result = tested.splitLayoutCtxAndWriteToAzure(null)
 
         then: "no invocation"
         0 * azureEventHubService.checkObjectSize()
@@ -54,10 +51,11 @@ class LayoutServiceSplitTest extends Specification {
         }
 
         when: "split data in layout context"
-        tested.splitLayoutCtxAndWriteToAzure(layoutCtx)
+        def result = tested.splitLayoutCtxAndWriteToAzure(layoutCtx)
 
         then: "count invocation"
         5 * azureEventHubService.sendSynchronousObjectMessage(_)
+        result == "A750E750A750E750A750E750A750E750A499E499"
     }
 
     def "split context only events 3500 entries"() {
@@ -83,10 +81,11 @@ class LayoutServiceSplitTest extends Specification {
         }
 
         when: "split data in layout context"
-        tested.splitLayoutCtxAndWriteToAzure(layoutCtx)
+        def result = tested.splitLayoutCtxAndWriteToAzure(layoutCtx)
 
         then: "count invocation"
         5 * azureEventHubService.sendSynchronousObjectMessage(_)
+        result == "A0E750A0E750A0E750A0E750A0E499"
     }
 
     def "split context events 2000 actions 1000 entries"() {
@@ -116,11 +115,11 @@ class LayoutServiceSplitTest extends Specification {
         }
 
         when: "split data in layout context"
+        def result = tested.splitLayoutCtxAndWriteToAzure(layoutCtx)
 
-        tested.splitLayoutCtxAndWriteToAzure(layoutCtx)
-
-        then: "count invocation"
+        then: "count invocation and result"
         3 * azureEventHubService.sendSynchronousObjectMessage(_)
+        result == "A750E750A250E750A0E500"
     }
 
     def "split context events 1000 actions 2000 entries"() {
@@ -151,12 +150,12 @@ class LayoutServiceSplitTest extends Specification {
 
         when: "split data in layout context"
 
-        tested.splitLayoutCtxAndWriteToAzure(layoutCtx)
+        def result = tested.splitLayoutCtxAndWriteToAzure(layoutCtx)
 
         then: "count invocation"
         3 * azureEventHubService.sendSynchronousObjectMessage(_)
+        result == "A750E750A750E250A500E0"
     }
-
 
     def "split context events 740 actions 760 entries"() {
         given:
@@ -186,10 +185,11 @@ class LayoutServiceSplitTest extends Specification {
 
         when: "split data in layout context"
 
-        tested.splitLayoutCtxAndWriteToAzure(layoutCtx)
+        def result = tested.splitLayoutCtxAndWriteToAzure(layoutCtx)
 
         then: "count invocation"
         2 * azureEventHubService.sendSynchronousObjectMessage(_)
+        result == "A750E740A10E0"
     }
 
     def LayoutRequestAction createAction(int i) {
