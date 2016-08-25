@@ -142,13 +142,13 @@ class LayoutService {
             splitListAction.clear();
 
             if (!eventsFinished) {
-                log.info("events start {} end {}", startPosition, endPositionEventList);
+                log.debug("events start {} end {}", startPosition, endPositionEventList);
                 // take a sub list from the original list
                 splitListEvent.addAll(originalRequestEventList.subList(startPosition, endPositionEventList));
             }
 
             if (!actionFinished) {
-                log.info("action start {} end {}", startPosition, endPositionEventList);
+                log.debug("action start {} end {}", startPosition, endPositionEventList);
                 // take a sub list from the original list
                 splitListAction.addAll(originalRequestActionList.subList(startPosition, endPositionActionList));
             }
@@ -175,7 +175,7 @@ class LayoutService {
         }.until {
             eventsFinished && actionFinished;
         }
-        log.info("Count {}", count)
+        log.debug("Count {}", count)
     }
 
     private LayoutCtx computeLayout(LayoutCtx ctx) {
