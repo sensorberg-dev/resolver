@@ -43,7 +43,7 @@ class LayoutService {
     /**
      * Amount of splitting for lists in oversize messages.
      */
-    private int splitStep = 500;
+    private int splitStep = 750;
 
     LayoutCtx layout(LayoutCtx ctx) {
         def measuredResponse = measureTime({
@@ -142,13 +142,13 @@ class LayoutService {
             splitListAction.clear();
 
             if (!eventsFinished) {
-                log.info("events start {} end {}", startPosition, endPositionEventList);
+                log.debug("events start {} end {}", startPosition, endPositionEventList);
                 // take a sub list from the original list
                 splitListEvent.addAll(originalRequestEventList.subList(startPosition, endPositionEventList));
             }
 
             if (!actionFinished) {
-                log.info("action start {} end {}", startPosition, endPositionEventList);
+                log.debug("action start {} end {}", startPosition, endPositionEventList);
                 // take a sub list from the original list
                 splitListAction.addAll(originalRequestActionList.subList(startPosition, endPositionActionList));
             }
@@ -164,11 +164,18 @@ class LayoutService {
             startPosition += splitStep;
             count++;
 
+            if (endPositionEventList == originalEventSize) {
+                eventsFinished = true;
+            }
+
+            if (endPositionActionList == originalActionSize) {
+                actionFinished = true;
+            }
 
         }.until {
             eventsFinished && actionFinished;
         }
-        log.info("Count {}", count)
+        log.debug("Count {}", count)
     }
 
     private LayoutCtx computeLayout(LayoutCtx ctx) {
