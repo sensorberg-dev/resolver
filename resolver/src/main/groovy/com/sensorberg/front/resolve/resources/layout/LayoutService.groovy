@@ -43,7 +43,7 @@ class LayoutService {
     /**
      * Amount of splitting for lists in oversize messages.
      */
-    private int splitStep = 500;
+    private int splitStep = 750;
 
     LayoutCtx layout(LayoutCtx ctx) {
         def measuredResponse = measureTime({
@@ -164,6 +164,13 @@ class LayoutService {
             startPosition += splitStep;
             count++;
 
+            if (endPositionEventList == originalEventSize) {
+                eventsFinished = true;
+            }
+
+            if (endPositionActionList == originalActionSize) {
+                actionFinished = true;
+            }
 
         }.until {
             eventsFinished && actionFinished;
