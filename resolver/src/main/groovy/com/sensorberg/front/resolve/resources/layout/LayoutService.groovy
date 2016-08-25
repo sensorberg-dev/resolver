@@ -86,8 +86,9 @@ class LayoutService {
      * large on entry in a list actual is, because it depends on the payload. (String size).
      * This is written in java, because the new resolver will be written in java as well
      * The method is public for testing.
+     * Result is only usesd for testing
      */
-    void splitLayoutCtxAndWriteToAzure(LayoutCtx originalCtx) {
+    String splitLayoutCtxAndWriteToAzure(LayoutCtx originalCtx) {
 
         log.info("splitLayoutCtxAndWriteToAzure called");
 
@@ -121,6 +122,8 @@ class LayoutService {
 
         int count = 1;
 
+        String result = "";
+
         Looper.loop {
 
             int endPositionEventList = startPosition + splitStep;
@@ -129,13 +132,11 @@ class LayoutService {
             // Check for end of events
             if (endPositionEventList > originalEventSize) {
                 endPositionEventList = originalEventSize;
-                eventsFinished = true;
             }
 
             // Check for end of actions
             if (endPositionActionList > originalActionSize) {
                 endPositionActionList = originalActionSize;
-                actionFinished = true;
             }
 
             splitListEvent.clear();
@@ -159,7 +160,14 @@ class LayoutService {
 
             // Send this message synchron, because will make changes on the originalCtx
             originalCtx.setId(originalUUID+ "-" + count);
+
+            log.debug("final Actions {}, Events {}", originalCtx.getRequest().activity.actions.size(), originalCtx.getRequest().activity.events.size())
+
             azureEventHubService.sendSynchronousObjectMessage(originalCtx);
+
+            // The is only to be able to check the splitting in a test
+            result += "A" + originalCtx.getRequest().activity.actions.size();
+            result += "E" + originalCtx.getRequest().activity.events.size();
 
             startPosition += splitStep;
             count++;
@@ -176,6 +184,8 @@ class LayoutService {
             eventsFinished && actionFinished;
         }
         log.debug("Count {}", count)
+
+        return result;
     }
 
     private LayoutCtx computeLayout(LayoutCtx ctx) {
