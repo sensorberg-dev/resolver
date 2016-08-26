@@ -29,4 +29,20 @@ class LayoutCtx {
         request?.activity?.actions?.empty == false ||
                 request?.activity?.events?.empty == false
     }
+
+    List<LayoutCtx> split(int countOfItems){
+
+        "this" must not be modified, because it is the response to the mobile client
+
+        //split these
+        originalCtx.getRequest().getActivity().setEvents(splitListEvent);
+        originalCtx.getRequest().getActivity().setActions(splitListAction);
+
+        //LayoutResponse response must be null in each splits
+
+        originalCtx.setId(originalUUID+ "-" + count);
+
+        azureEventHubService.checkObjectSize(ctx)
+
+    }
 }
