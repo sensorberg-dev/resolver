@@ -30,8 +30,8 @@ class LayoutCtx {
     }
 
     boolean getHasEventsOrActions() {
-        !request?.activity?.actions?.empty ||
-                !request?.activity?.events?.empty
+        request?.activity?.actions ||
+                request?.activity?.events
     }
 
     List<LayoutCtx> split(int maxCountOfItems) {
@@ -95,7 +95,7 @@ class LayoutCtx {
         }
     }
 
-    private static int listSize(List<?> list) {
+    static int listSize(List<?> list) {
         return list?.size() ?: 0
     }
 
@@ -115,6 +115,7 @@ class LayoutCtx {
     private LayoutCtx createCleanClone() {
         LayoutCtx clone = this.clone()
         clone.response = null;   //LayoutResponse response must be null in each splits
+        clone.syncApplicationRequest = null;  // ... and so does this.
         clone.request?.activity?.actions?.clear()
         clone.request?.activity?.events?.clear()
         clone.request?.activity?.conversions?.clear()
@@ -135,8 +136,8 @@ class LayoutCtx {
 
         private ItemCounts(LayoutRequestBody activity, int maxCountOfItems) {
             this.countOfEventItems = listSize(activity.events)
-            this.countOfActionItems = listSize(activity.events)
-            this.countOfConversionItems = listSize(activity.events)
+            this.countOfActionItems = listSize(activity.actions)
+            this.countOfConversionItems = listSize(activity.conversions)
 
             this.countOfAllItems = countOfEventItems + countOfActionItems + countOfConversionItems
             this.maxCountOfItems = maxCountOfItems
