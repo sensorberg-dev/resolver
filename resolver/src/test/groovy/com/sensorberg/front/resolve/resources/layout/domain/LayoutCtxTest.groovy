@@ -213,7 +213,8 @@ class LayoutCtxTest extends Specification {
         )
         when:
         def actual = tested.split(maxCount)
-        then:
+        then: "it should split into 7 items, each with identical request"
+        assert actual.size() == 7
         assertMaximumItemCount(actual, maxCount)
         assertUniqueItemCount(actual, overallCount)
         assertEqualLayouts(actual, tested)
