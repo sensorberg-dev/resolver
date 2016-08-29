@@ -259,7 +259,27 @@ class LayoutCtxTest extends Specification {
             assert it.response == null
             assert it.syncApplicationRequest == null
         }
+    }
 
+    def "id generation should be based on the original ID"() {
+        setup:
+        def maxCount = 1
+        def tested = new LayoutCtx(
+                request: new LayoutRequest(
+                        activity: new LayoutRequestBody(
+                                events: createEvents(2),
+                                actions: createActions(2),
+                                conversions: createConversions(2)
+                        )
+                )
+        )
+        when:
+        def actual = tested.split(maxCount)
+        then:
+        assert actual[0].id == "${tested.id}-1"                 : "should start with split index 1"
+        actual.eachWithIndex { LayoutCtx entry, int i ->
+            assert entry.id == "${tested.id}-${i+1}".toString()
+        }
     }
 
     def assertMaximumItemCount(List<LayoutCtx> contexts, int maxCount) {
