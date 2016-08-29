@@ -234,6 +234,34 @@ class LayoutCtxTest extends Specification {
         assertEqualLayouts(actual, tested)
     }
 
+    def "split items should not contain the response or the 'syncApplicationRequest' "() {
+        setup:
+        def maxCount = 1
+        def tested = new LayoutCtx(
+                response: new LayoutResponse(
+                    accountProximityUUIDs: [ "foo" ],
+                    actions: [
+                            new LayoutAction( eid: UUID.randomUUID().toString() )
+                    ]
+                ),
+                request: new LayoutRequest(
+                        activity: new LayoutRequestBody(
+                                events: createEvents(2),
+                                actions: createActions(2),
+                                conversions: createConversions(2)
+                        )
+                )
+        )
+        when:
+        def actual = tested.split(maxCount)
+        then: "the response and the syncApplicationRequest should not be split"
+        actual.each {
+            assert it.response == null
+            assert it.syncApplicationRequest == null
+        }
+
+    }
+
     def assertMaximumItemCount(List<LayoutCtx> contexts, int maxCount) {
         contexts.eachWithIndex { it, i ->
             int count = 0;
