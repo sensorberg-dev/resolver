@@ -213,6 +213,7 @@ class LayoutCtxTest extends Specification {
         def tested = new LayoutCtx(
                 request: new LayoutRequest(
                         activity: new LayoutRequestBody(
+                                deviceTimestamp: new Date(),
                                 events: createEvents(eventCount),
                                 actions: createActions(actionCount),
                                 conversions: createConversions(conversionCount)
@@ -238,6 +239,7 @@ class LayoutCtxTest extends Specification {
         def tested = new LayoutCtx(
                 request: new LayoutRequest(
                         activity: new LayoutRequestBody(
+                                deviceTimestamp: new Date(),
                                 events: createEvents(eventCount),
                                 actions: createActions(actionCount),
                                 conversions: createConversions(conversionCount)
@@ -265,6 +267,7 @@ class LayoutCtxTest extends Specification {
                 ),
                 request: new LayoutRequest(
                         activity: new LayoutRequestBody(
+                                deviceTimestamp: new Date(),
                                 events: createEvents(2),
                                 actions: createActions(2),
                                 conversions: createConversions(2)
@@ -286,6 +289,7 @@ class LayoutCtxTest extends Specification {
         def tested = new LayoutCtx(
                 request: new LayoutRequest(
                         activity: new LayoutRequestBody(
+                                deviceTimestamp: new Date(0),
                                 events: createEvents(2),
                                 actions: createActions(2),
                                 conversions: createConversions(2)
@@ -368,6 +372,7 @@ class LayoutCtxTest extends Specification {
                 assert request.activity == null
             } else {
                 assert request.activity != null
+                assert request.activity.deviceTimestamp == baseRequest.activity.deviceTimestamp
             }
         }
         true
