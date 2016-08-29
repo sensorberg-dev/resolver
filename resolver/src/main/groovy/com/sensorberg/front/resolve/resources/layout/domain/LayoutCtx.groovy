@@ -30,8 +30,7 @@ class LayoutCtx {
     }
 
     boolean getHasEventsOrActions() {
-        request?.activity?.actions ||
-                request?.activity?.events
+        request?.activity?.actions || request?.activity?.events || request?.activity?.conversions
     }
 
     List<LayoutCtx> split(int maxCountOfItems) {
