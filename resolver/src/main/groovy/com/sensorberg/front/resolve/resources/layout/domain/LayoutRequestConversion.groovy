@@ -1,6 +1,6 @@
 package com.sensorberg.front.resolve.resources.layout.domain
 
-class LayoutRequestConversions {
+class LayoutRequestConversion {
     String action
     Date dt
     String location

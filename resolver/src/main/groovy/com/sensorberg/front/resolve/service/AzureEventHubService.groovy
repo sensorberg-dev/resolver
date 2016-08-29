@@ -59,7 +59,7 @@ public class AzureEventHubService {
      * @param input
      * @return
      */
-    public boolean checkObjectSize(Object input) {
+    public static boolean checkObjectSize(Object input) {
         final byte[] utf8Bytes = new Gson().toJson(input).getBytes("UTF-8");
         final double messageSizeInKB = (utf8Bytes.length / 1024);
 

@@ -1,10 +1,12 @@
 package com.sensorberg.front.resolve.resources.layout.domain
 
 import com.fasterxml.jackson.annotation.JsonInclude
+import groovy.transform.AutoClone
 
 /**
  * layout request
  */
+@AutoClone
 @JsonInclude(value=JsonInclude.Include.NON_EMPTY)
 class LayoutRequest {
     String diRaw
