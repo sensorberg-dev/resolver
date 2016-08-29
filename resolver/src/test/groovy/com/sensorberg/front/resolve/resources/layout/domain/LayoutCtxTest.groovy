@@ -309,7 +309,7 @@ class LayoutCtxTest extends Specification {
         }
     }
     def createConversions(int count) {
-        return createObjects(count, { new LayoutRequestConversions() })
+        return createObjects(count, { new LayoutRequestConversion() })
     }
     def createObjects(int count, Closure factory) {
         if (count < 0) {

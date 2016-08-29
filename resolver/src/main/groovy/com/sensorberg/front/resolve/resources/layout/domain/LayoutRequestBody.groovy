@@ -12,5 +12,5 @@ class LayoutRequestBody {
     Date deviceTimestamp
     List<LayoutRequestEvent> events
     List<LayoutRequestAction> actions
-    List<LayoutRequestConversions> conversions
+    List<LayoutRequestConversion> conversions
 }

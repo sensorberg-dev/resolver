@@ -83,7 +83,7 @@ class LayoutCtx {
         }
     }
 
-    static void splitConversionItems(List<LayoutRequestConversions> conversionses, ItemCounts counts, LayoutCtx ctx) {
+    static void splitConversionItems(List<LayoutRequestConversion> conversionses, ItemCounts counts, LayoutCtx ctx) {
         if (counts.countOfHandledConversions < counts.countOfConversionItems &&
                 counts.countOfCurrentItems < counts.maxCountOfItems) {
 
