@@ -7,7 +7,6 @@ import com.sensorberg.front.resolve.resources.layout.domain.*
 import com.sensorberg.front.resolve.resources.logs.LogService
 import com.sensorberg.front.resolve.resources.synchronization.SynchronizationService
 import com.sensorberg.front.resolve.service.AzureEventHubService
-import com.sensorberg.groovy.helper.Looper
 import groovy.util.logging.Slf4j
 import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Autowired
@@ -43,7 +42,7 @@ class LayoutService {
     /**
      * Amount of splitting for lists in oversize messages.
      */
-    private int splitStep = 750;
+    public static final int SPLIT_SIZE = 1200;
 
     LayoutCtx layout(LayoutCtx ctx) {
         def measuredResponse = measureTime({
@@ -52,8 +51,6 @@ class LayoutService {
         LayoutCtx resultCtx = measuredResponse.result
         resultCtx.elapsedTime = measuredResponse.elapsedTime
 
-
-
         // Do not process meaningless data
         // Check if we have a request and activities
         if (ctx.hasEventsOrActions) {
@@ -61,7 +58,7 @@ class LayoutService {
                 logService.log(ctx)
 
                 // Message ist to large, split activity Actions/Event in 1000 Steps
-                ctx.split(splitStep).each {
+                ctx.split(SPLIT_SIZE).each {
                     azureEventHubService.sendAsyncObjectMessage(it)
                 }
 
@@ -71,116 +68,6 @@ class LayoutService {
 
         }
         return resultCtx
-    }
-
-    /**
-     * In case the context is to large to be send in whole, we split the message
-     * by splitting the event list and the action list of the request.
-     * I assumed, that the response part will never be to large.
-     * The split step 500 is guessed, because we can not be sure how
-     * large on entry in a list actual is, because it depends on the payload. (String size).
-     * This is written in java, because the new resolver will be written in java as well
-     * The method is public for testing.
-     * Result is only usesd for testing
-     */
-    String splitLayoutCtxAndWriteToAzure(LayoutCtx originalCtx) {
-
-        log.info("splitLayoutCtxAndWriteToAzure called");
-
-        if (null == originalCtx || null == originalCtx.getRequest() || null == originalCtx.getRequest().getActivity()) {
-            return;
-        }
-
-        // Save original lists
-        List<LayoutRequestEvent> originalRequestEventList = originalCtx.getRequest().getActivity().getEvents();
-        List<LayoutRequestAction> originalRequestActionList = originalCtx.getRequest().getActivity().getActions();
-        final String originalUUID = originalCtx.getId();
-
-
-        int originalEventSize = 0
-        if (null != originalRequestEventList) {
-            originalEventSize = originalRequestEventList.size();
-        }
-
-        int originalActionSize = 0;
-        if (null != originalRequestActionList) {
-            originalActionSize = originalRequestActionList.size();
-        }
-
-        List<LayoutRequestEvent> splitListEvent = new ArrayList<>();
-        List<LayoutRequestAction> splitListAction = new ArrayList<>();
-
-        int startPosition = 0;
-
-        boolean eventsFinished = false;
-        boolean actionFinished = false;
-
-        int count = 1;
-
-        String result = "";
-
-        Looper.loop {
-
-            int endPositionEventList = startPosition + splitStep;
-            int endPositionActionList = startPosition + splitStep;
-
-            // Check for end of events
-            if (endPositionEventList > originalEventSize) {
-                endPositionEventList = originalEventSize;
-            }
-
-            // Check for end of actions
-            if (endPositionActionList > originalActionSize) {
-                endPositionActionList = originalActionSize;
-            }
-
-            splitListEvent.clear();
-            splitListAction.clear();
-
-            if (!eventsFinished) {
-                log.debug("events start {} end {}", startPosition, endPositionEventList);
-                // take a sub list from the original list
-                splitListEvent.addAll(originalRequestEventList.subList(startPosition, endPositionEventList));
-            }
-
-            if (!actionFinished) {
-                log.debug("action start {} end {}", startPosition, endPositionEventList);
-                // take a sub list from the original list
-                splitListAction.addAll(originalRequestActionList.subList(startPosition, endPositionActionList));
-            }
-
-            // Set lists to original object
-            originalCtx.getRequest().getActivity().setEvents(splitListEvent);
-            originalCtx.getRequest().getActivity().setActions(splitListAction);
-
-            // Send this message synchron, because will make changes on the originalCtx
-            originalCtx.setId(originalUUID+ "-" + count);
-
-            log.debug("final Actions {}, Events {}", originalCtx.getRequest().activity.actions.size(), originalCtx.getRequest().activity.events.size())
-
-            azureEventHubService.sendSynchronousObjectMessage(originalCtx);
-
-            // The is only to be able to check the splitting in a test
-            result += "A" + originalCtx.getRequest().activity.actions.size();
-            result += "E" + originalCtx.getRequest().activity.events.size();
-
-            startPosition += splitStep;
-            count++;
-
-            if (endPositionEventList == originalEventSize) {
-                eventsFinished = true;
-            }
-
-            if (endPositionActionList == originalActionSize) {
-                actionFinished = true;
-            }
-
-        }.until {
-            eventsFinished && actionFinished;
-        }
-        log.debug("Count {}", count)
-
-        return result;
     }
 
     private LayoutCtx computeLayout(LayoutCtx ctx) {

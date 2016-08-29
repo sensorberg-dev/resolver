@@ -1,5 +1,6 @@
 package com.sensorberg.front.resolve.resources.layout.domain
 
+import com.sensorberg.front.resolve.resources.layout.LayoutService
 import com.sensorberg.front.resolve.service.AzureEventHubService
 import spock.lang.Specification
 
@@ -164,9 +165,9 @@ class LayoutCtxTest extends Specification {
         assertEqualLayouts(actual, tested)
     }
 
-    def "don't split some actions"() {
+    def "size constraint should be valid for a large amount of items"() {
         setup:
-        def actionCount = 1200  // 1300 would be too much!!!
+        def actionCount = LayoutService.SPLIT_SIZE  // 100 more items would fail (see below)
         def tested = new LayoutCtx(
                 request: new LayoutRequest(
                         activity: new LayoutRequestBody(
@@ -182,6 +183,24 @@ class LayoutCtxTest extends Specification {
         assertUniqueItemCount(actual, actionCount)
         assertEqualLayouts(actual, tested)
         AzureEventHubService.checkObjectSize(actual[0])
+    }
+
+    def "size constraint should fail for 100 more items"() {
+        setup:
+        def actionCount = LayoutService.SPLIT_SIZE +100
+        def tested = new LayoutCtx(
+                request: new LayoutRequest(
+                        activity: new LayoutRequestBody(
+                                actions: createActions(actionCount)
+                        )
+                )
+        )
+        when:
+        def actual = tested.split(actionCount)
+        then:
+        assert actual.size() == 1
+
+        assert !AzureEventHubService.checkObjectSize(actual[0])
     }
 
     def "don't split few mixed items"() {
