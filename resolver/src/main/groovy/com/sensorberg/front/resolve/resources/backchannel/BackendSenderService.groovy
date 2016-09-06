@@ -42,12 +42,14 @@ class BackendSenderService {
         if (backchannelUrl == null) {
             return updateAsPrivate(ctx)
         }
+        long startTime = System.currentTimeMillis()
         try {
             def response = restTemplate.postForEntity(backchannelUrl, ctx, BackchannelResponseWrapper)
             return updateAsDelivered(ctx, response.getBody())
         } catch (Exception e) {
-            log.debug("cannot send event to backend [reason: {}]", e.getMessage())
-            return updateLastError(ctx, "exception: $e.message")
+            long timeSpent = System.currentTimeMillis()-startTime;
+            log.error("cannot send event to backend took ${timeSpent}ms", e)
+            return updateLastError(ctx, "exception: ${e.message}, took ${timeSpent}ms")
         }
     }
 
