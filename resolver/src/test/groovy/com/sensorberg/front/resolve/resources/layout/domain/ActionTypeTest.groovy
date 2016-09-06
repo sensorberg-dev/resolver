@@ -14,13 +14,7 @@ class ActionTypeTest extends Specification {
         1    | "notification"
         2    | "website"
         3    | "function"
-        4    | "coupon"
-        5    | "vibrate"
-        9    | "custom"
-        11   | "image"
-        12   | "video"
-        13   | "audio"
-        31   | "mailing"
+        4    | "silent"
         999  | "999"
         null | null
 
