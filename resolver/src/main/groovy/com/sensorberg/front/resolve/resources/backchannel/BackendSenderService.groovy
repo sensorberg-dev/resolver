@@ -7,6 +7,7 @@ import groovy.util.logging.Slf4j
 import org.elasticsearch.action.update.UpdateRequest
 import org.elasticsearch.client.Client
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -45,7 +46,12 @@ class BackendSenderService {
         long startTime = System.currentTimeMillis()
         try {
             def response = restTemplate.postForEntity(backchannelUrl, ctx, BackchannelResponseWrapper)
-            return updateAsDelivered(ctx, response.getBody())
+            if (response.statusCode == HttpStatus.OK){
+                return updateAsDelivered(ctx)
+            } else {
+                return updateLastError(ctx, "Error from backend: ${response.statusCode}")
+            }
+
         } catch (Exception e) {
             long timeSpent = System.currentTimeMillis()-startTime;
             log.error("cannot send event to backend took ${timeSpent}ms", e)
@@ -53,9 +59,9 @@ class BackendSenderService {
         }
     }
 
-    private void updateAsDelivered(LayoutCtx ctx, BackchannelResponseWrapper response = new BackchannelResponseWrapper(actionsResolved: 0)) {
+    private void updateAsDelivered(LayoutCtx ctx) {
         client.update(new UpdateRequest(esConfig.getIndexName(), esConfig.INDEX.layoutLog, ctx.id).doc(
-                reportedBack: [dt: new Date(), success: true, actionsResolved: response.actionsResolved]
+                reportedBack: [dt: new Date(), success: true]
         )).get()
     }
 
