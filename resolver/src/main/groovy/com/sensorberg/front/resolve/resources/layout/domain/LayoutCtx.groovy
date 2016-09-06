@@ -29,7 +29,7 @@ class LayoutCtx {
         eventDate = new Date()
     }
 
-    boolean getHasEventsOrActions() {
+    boolean getHasActivity() {
         request?.activity?.actions || request?.activity?.events || request?.activity?.conversions
     }
 

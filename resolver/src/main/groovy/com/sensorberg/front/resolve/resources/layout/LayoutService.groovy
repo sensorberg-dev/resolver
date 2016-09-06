@@ -53,7 +53,7 @@ class LayoutService {
 
         // Do not process meaningless data
         // Check if we have a request and activities
-        if (ctx.hasEventsOrActions) {
+        if (ctx.hasActivity) {
                 //log to elasticsearch
                 logService.log(ctx)
 

@@ -13,7 +13,7 @@ class LayoutCtxTest extends Specification {
         setup:
         def tested = new LayoutCtx();
         expect:
-        assert !tested.hasEventsOrActions
+        assert !tested.hasActivity
     }
 
     def "with empty list request"(){
@@ -28,7 +28,7 @@ class LayoutCtxTest extends Specification {
                 )
         )
         expect:
-        assert !tested.hasEventsOrActions
+        assert !tested.hasActivity
     }
 
     def "with filled list request"(){
@@ -42,7 +42,7 @@ class LayoutCtxTest extends Specification {
                 )
         )
         expect:
-        assert tested.hasEventsOrActions
+        assert tested.hasActivity
     }
 
     def "only with conversions"(){
@@ -55,7 +55,7 @@ class LayoutCtxTest extends Specification {
                 )
         )
         expect:
-        assert tested.hasEventsOrActions
+        assert tested.hasActivity
     }
 
     def "with filled only actions request"(){
@@ -68,7 +68,7 @@ class LayoutCtxTest extends Specification {
                 )
         )
         expect:
-        assert tested.hasEventsOrActions
+        assert tested.hasActivity
     }
 
     def "with empty request"(){
@@ -78,7 +78,7 @@ class LayoutCtxTest extends Specification {
                 )
         )
         expect:
-        assert !tested.hasEventsOrActions
+        assert !tested.hasActivity
     }
 
     def "split no request"() {
