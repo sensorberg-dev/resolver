@@ -17,7 +17,7 @@
 			<level>INFO</level>
 		</filter>
 
-		<file>application.log</file>
+		<file>/usr/local/sensorberg/var/application.log</file>
 
 		<encoder>
 			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
@@ -25,7 +25,7 @@
 
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- rollover daily -->
-			<fileNamePattern>application_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<fileNamePattern>/usr/local/sensorberg/var/application_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 
 			<timeBasedFileNamingAndTriggeringPolicy
 					class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
@@ -41,7 +41,7 @@
 			<level>ERROR</level>
 		</filter>
 
-		<file>error.log</file>
+		<file>/usr/local/sensorberg/var/error.log</file>
 
 		<encoder>
 			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
@@ -49,7 +49,7 @@
 
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- rollover daily -->
-			<fileNamePattern>error_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<fileNamePattern>/usr/local/sensorberg/var/error_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 
 			<timeBasedFileNamingAndTriggeringPolicy
 					class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
