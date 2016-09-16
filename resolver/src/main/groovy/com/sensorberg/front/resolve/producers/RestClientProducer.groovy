@@ -16,7 +16,7 @@ class RestClientProducer {
 
     final static int TOTAL_CONNECTIONS = 30
     final static int TOTAL_CONNECTIONS_PER_ROUTE = 20
-    final static int CONNECTION_TIMEOUT_MS = 60000
+    final static int CONNECTION_TIMEOUT_MS = 180000
     RestTemplate restTemplate
 
     @PostConstruct
