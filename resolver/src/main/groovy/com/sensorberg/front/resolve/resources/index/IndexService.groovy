@@ -78,7 +78,7 @@ class IndexService implements IsSearchClient {
         }
     }
 
-    boolean indexActions(Collection<Action> rawActions, long tillVersionId) {
+    boolean indexActions(Collection<Action> rawActions, SyncApplicationRequest sa, long tillVersionId) {
         if(rawActions == null || rawActions.size() == 0) {
             return true
         }
@@ -87,6 +87,7 @@ class IndexService implements IsSearchClient {
         rawActions.each { item ->
             def action = actions.getOrDefault(item.id, item)
             action.applicationIds << item.apiKey
+            action.environment = sa.id
             actions.put(action.id, action)
         }
 

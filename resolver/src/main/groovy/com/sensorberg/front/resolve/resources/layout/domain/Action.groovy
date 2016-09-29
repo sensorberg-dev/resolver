@@ -68,6 +68,11 @@ class Action implements ActionType, HasVersion {
     List<String> beacons
 
     /**
+     * if of the environment
+     */
+    String environment
+
+    /**
      * apiKey
      */
     String apiKey

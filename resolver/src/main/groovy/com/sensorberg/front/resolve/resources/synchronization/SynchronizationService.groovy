@@ -71,12 +71,7 @@ class SynchronizationService implements IsSearchClient {
 
         log.info("synchronizeForce called.")
 
-        // Delete all beacons/actions from beacon_layout
-        DeleteByQueryRequestBuilder requestBuilder = new DeleteByQueryRequestBuilder(client)
-                .setIndices(esConfig.getIndexName())
-                .setTypes(ESConfig.INDEX.beacon, ESConfig.INDEX.action)
-                .setQuery(QueryBuilders.matchAllQuery())
-        requestBuilder.get();
+
 
         logProvider.listSynchronizations().each { syncDefinition ->
             def synchronizationResult = synchronizeAll(syncDefinition)
@@ -104,6 +99,12 @@ class SynchronizationService implements IsSearchClient {
         try {
             // Call backend and get a sync response
             def syncResponse = sync(sa, currentVersionId)
+            // Delete all beacons/actions from beacon_layout corresponding to the current SyncApplicationRequest
+            DeleteByQueryRequestBuilder requestBuilder = new DeleteByQueryRequestBuilder(client)
+                    .setIndices(esConfig.getIndexName())
+                    .setTypes(ESConfig.INDEX.beacon, ESConfig.INDEX.action)
+                    .setQuery(QueryBuilders.matchQuery("environment", sa.id))
+            requestBuilder.get();
 
             // Index Beacons, Actions and analyze Applications
             processSyncResponse(syncResponse,logItem, sa)
@@ -161,7 +162,7 @@ class SynchronizationService implements IsSearchClient {
                                      final SyncApplicationRequest sa) {
 
         def beaconResult = indexService.indexBeacons(syncResponse.beacons, sa, syncResponse.tillVersionId)
-        def actionResult = indexService.indexActions(syncResponse.actions, syncResponse.tillVersionId)
+        def actionResult = indexService.indexActions(syncResponse.actions, sa, syncResponse.tillVersionId)
         // todo: low priority analyze only changed applications
         indexService.analyzeApplications()
 
