@@ -23,14 +23,12 @@ class ScheduledSynchronization {
     @Autowired
     Client client
 
-    // Call every 5 minutes
-    @Scheduled(fixedDelay = 300000l)
     void synchronize() {
         service.synchronizeForce()
     }
 
-    // Call every night at 1 o clock
-    @Scheduled(cron = "0 0 1 * * ?")
+    // Call every 5 minutes
+    @Scheduled(fixedDelay = 300000l)
     void deleteSyncData() {
 
         log.info("Delete Sync Data called.")
