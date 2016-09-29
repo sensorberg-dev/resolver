@@ -1,4 +1,6 @@
 package com.sensorberg.front.resolve.resources.synchronization
+
+import com.sensorberg.front.resolve.config.ESConfig
 import com.sensorberg.front.resolve.producers.els.domain.IsSearchClient
 import com.sensorberg.front.resolve.resources.index.IndexService
 import com.sensorberg.front.resolve.resources.index.VersionService
@@ -9,6 +11,9 @@ import com.sensorberg.front.resolve.resources.index.domain.SynchronizationRespon
 import groovy.util.logging.Slf4j
 import org.apache.http.client.utils.URLEncodedUtils
 import org.apache.http.message.BasicNameValuePair
+import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder
+import org.elasticsearch.client.Client
+import org.elasticsearch.index.query.QueryBuilders
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -34,6 +39,13 @@ class SynchronizationService implements IsSearchClient {
     @Autowired
     RestTemplate restTemplate
 
+    @Autowired
+    ESConfig esConfig
+
+    @Autowired
+    Client client
+
+
     /**
      * sync beacons and actions with endpoints configured in /synchronizations
      */
@@ -58,6 +70,13 @@ class SynchronizationService implements IsSearchClient {
     public void synchronizeForce() {
 
         log.info("synchronizeForce called.")
+
+        // Delete all beacons/actions from beacon_layout
+        DeleteByQueryRequestBuilder requestBuilder = new DeleteByQueryRequestBuilder(client)
+                .setIndices(esConfig.getIndexName())
+                .setTypes(ESConfig.INDEX.beacon, ESConfig.INDEX.action)
+                .setQuery(QueryBuilders.matchAllQuery())
+        requestBuilder.get();
 
         logProvider.listSynchronizations().each { syncDefinition ->
             def synchronizationResult = synchronizeAll(syncDefinition)

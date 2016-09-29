@@ -17,30 +17,11 @@ class ScheduledSynchronization {
     @Autowired
     SynchronizationService service
 
-    @Autowired
-    ESConfig esConfig
-
-    @Autowired
-    Client client
-
-    void synchronize() {
-        service.synchronizeForce()
-    }
 
     // Call every 5 minutes
     @Scheduled(fixedDelay = 300000l)
     void deleteSyncData() {
-
         log.info("Delete Sync Data called.")
-
-        // Delete all beacons/actions from beacon_layout
-        DeleteByQueryRequestBuilder requestBuilder = new DeleteByQueryRequestBuilder(client)
-                .setIndices(esConfig.getIndexName())
-                .setTypes(ESConfig.INDEX.beacon, ESConfig.INDEX.action)
-                .setQuery(QueryBuilders.matchAllQuery())
-
-        requestBuilder.get();
-
         // Call sync force
         service.synchronizeForce()
     }
