@@ -1,5 +1,6 @@
 package com.sensorberg.front.resolve.service
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.sensorberg.front.resolve.resources.layout.domain.LayoutCtx
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Value
@@ -38,19 +39,20 @@ public class AzureEventHubService {
 
     private Session sendSession;
     private MessageProducer messageProducer;
+    private Gson gsonEncoder = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create();
 
     @Async
     public void sendAsyncObjectMessage(Object input) {
-        sendObjectMessage(input);
+        sendJsonMessage(encodeMessageToJson(input));
     }
 
     public void sendSynchronousObjectMessage(Object input) {
-        sendObjectMessage(input);
+        sendJsonMessage(encodeMessageToJson(input));
     }
 
-    private void sendObjectMessage(Object input) {
+    String encodeMessageToJson(Object input) {
         logContextInformation(input);
-        sendJsonMessage(new Gson().toJson(input));
+        return gsonEncoder.toJson(input);
     }
 
     /**
