@@ -33,12 +33,14 @@ public class AzureEventHubService {
     @Value('${queue.EventHub}')
     private String eventHub;
 
-    @Value('${queue.EventHub.maxRetries}')
+    @Value('${queue.EventHub.maxRetries:0}')
     private int eventHubMaxRetries;
 
     private static String messageSourceValue = "\"messageSource\":\"RESOLVER\"";
 
     private static double MAX_MESSAGESIZE = 256D;
+
+    private static int DEFAULT_RETRIES = 3;
 
     private Session sendSession;
     private Gson gsonEncoder = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create();
@@ -90,6 +92,9 @@ public class AzureEventHubService {
         properties.put("property.connectionfactory.SBCF.username", user);
         properties.put("property.connectionfactory.SBCF.password", password);
 
+        if (eventHubMaxRetries <= 0) {
+            eventHubMaxRetries = DEFAULT_RETRIES;
+        }
         try {
             Context context = new InitialContext(properties);
 
@@ -149,12 +154,13 @@ public class AzureEventHubService {
                 BytesMessage message = sendSession.createBytesMessage();
                 message.writeBytes(messageText.getBytes("UTF-8"));
                 sender.send(message);
+                retryId = null;
             } catch (JMSException e) {
                 if (retryId == null) {
                     retryId = UUID.randomUUID().toString();
                 }
                 if (tries < eventHubMaxRetries) {
-                    log.error("Error sending message (retrying: " + retryId + ")", e);
+                    log.error("Error sending message (retrying ID: " + retryId + ")", e);
                     tryAgain = true;
                     initConnection();
                     Thread.sleep(100);
@@ -166,9 +172,13 @@ public class AzureEventHubService {
             } catch (UnsupportedEncodingException e) {
                 log.error("Error sending message because of an unsupported encoding", e);
                 log.error("Message was not sent: {}", messageText);
+                retryId = null;
+                tries = 0;
             }  catch (Exception e) {
                 log.error("Totally unexpected Error sending message", e);
                 log.error("Message was not sent: {}", messageText);
+                retryId = null;
+                tries = 0;
             }
         }
     }
