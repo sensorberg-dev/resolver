@@ -33,13 +33,16 @@ public class AzureEventHubService {
     @Value('${queue.EventHub}')
     private String eventHub;
 
+    @Value('${queue.EventHub.maxRetries}')
+    private int eventHubMaxRetries;
+
     private static String messageSourceValue = "\"messageSource\":\"RESOLVER\"";
 
     private static double MAX_MESSAGESIZE = 256D;
 
     private Session sendSession;
-    private MessageProducer messageProducer;
     private Gson gsonEncoder = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create();
+    private MessageProducer sender;
 
     @Async
     public void sendAsyncObjectMessage(Object input) {
@@ -98,7 +101,7 @@ public class AzureEventHubService {
             connection.setExceptionListener(new ExceptionListener() {
                 @Override
                 void onException(JMSException exception) {
-                    messageProducer = null;
+                    sender = null;
                     log.error("ExceptionListener triggered: " + exception.getMessage(), exception);
                     // Try to reinit the connection
                     initConnection();
@@ -106,7 +109,7 @@ public class AzureEventHubService {
             });
 
             sendSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            messageProducer = sendSession.createProducer(queue);
+            sender = sendSession.createProducer(queue);
 
         } catch (NamingException e) {
             log.error("error creating JMS connection.", e);
@@ -127,24 +130,51 @@ public class AzureEventHubService {
     }
 
     private void sendBytesMessage(String messageText) {
-        if (messageProducer == null) {
+        if (sender == null || sendSession == null) {
+            log.warn("sender or session is null. Try to reinit connection.");
             initConnection();
         }
-        try {
-            BytesMessage message = sendSession.createBytesMessage();
-            message.writeBytes(messageText.getBytes("UTF-8"));
-            messageProducer.send(message);
-        } catch (JMSException | UnsupportedEncodingException e) {
-            log.error("Error sending message", e);
-            log.error("Message was not {}", messageText);
-        }  catch (Exception e) {
-            log.error("Totally unexpected Error sending message", e);
-            log.error("Message was not {}", messageText);
+        if (sender == null || sendSession == null) {
+            log.error("Send message to Azure Event Hub failed because sender or session can't be reinitialized.");
+            log.error("Message was not sent: {}", messageText);
+            return;
+        }
+        int tries = 0;
+        boolean tryAgain = true;
+        String retryId;
+        while (tryAgain) {
+            tries++;
+            tryAgain = false;
+            try {
+                BytesMessage message = sendSession.createBytesMessage();
+                message.writeBytes(messageText.getBytes("UTF-8"));
+                sender.send(message);
+            } catch (JMSException e) {
+                if (retryId == null) {
+                    retryId = UUID.randomUUID().toString();
+                }
+                if (tries < eventHubMaxRetries) {
+                    log.error("Error sending message (retrying: " + retryId + ")", e);
+                    tryAgain = true;
+                    initConnection();
+                    Thread.sleep(100);
+                } else {
+                    log.error("Error sending message because of " + tries + " successive JMSExceptions (ID: " + retryId
+                            + "), giving up.", e);
+                    log.error("Message was not sent: {}", messageText);
+                }
+            } catch (UnsupportedEncodingException e) {
+                log.error("Error sending message because of an unsupported encoding", e);
+                log.error("Message was not sent: {}", messageText);
+            }  catch (Exception e) {
+                log.error("Totally unexpected Error sending message", e);
+                log.error("Message was not sent: {}", messageText);
+            }
         }
     }
 
     public Health getHealth() {
-        return messageProducer != null ? new Health.Builder().up().build() : new Health.Builder().down().build();
+        return sender != null ? new Health.Builder().up().build() : new Health.Builder().down().build();
     }
 
     /**
