@@ -144,41 +144,37 @@ public class AzureEventHubService {
             log.error("Message was not sent: {}", messageText);
             return;
         }
-        int tries = 0;
+        int retries = 0;
         boolean tryAgain = true;
         String retryId;
         while (tryAgain) {
-            tries++;
             tryAgain = false;
             try {
                 BytesMessage message = sendSession.createBytesMessage();
                 message.writeBytes(messageText.getBytes("UTF-8"));
                 sender.send(message);
-                retryId = null;
+                if (retryId != null) {
+                    log.info("Finally sending message (retry ID: " + retryId + ") successful (" + retries + ". retry).", e);
+                }
             } catch (JMSException e) {
                 if (retryId == null) {
                     retryId = UUID.randomUUID().toString();
                 }
-                if (tries <= eventHubMaxRetries) {
+                if (retries < eventHubMaxRetries) {
                     log.error("Error sending message (retrying ID: " + retryId + ")", e);
                     tryAgain = true;
-                    initConnection();
-                    Thread.sleep(100);
+                    retries++;
                 } else {
-                    log.error("Error sending message because of " + tries + " successive JMSExceptions (ID: " + retryId
+                    log.error("Error sending message because of " + retries + " successive JMSExceptions (ID: " + retryId
                             + "), giving up.", e);
                     log.error("Message was not sent: {}", messageText);
                 }
             } catch (UnsupportedEncodingException e) {
                 log.error("Error sending message because of an unsupported encoding", e);
                 log.error("Message was not sent: {}", messageText);
-                retryId = null;
-                tries = 0;
             }  catch (Exception e) {
                 log.error("Totally unexpected Error sending message", e);
                 log.error("Message was not sent: {}", messageText);
-                retryId = null;
-                tries = 0;
             }
         }
     }
