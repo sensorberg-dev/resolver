@@ -33,7 +33,7 @@ public class AzureEventHubService {
     @Value('${queue.EventHub}')
     private String eventHub;
 
-    @Value('${queue.EventHub.maxRetries:0}')
+    @Value('${queue.EventHub.maxRetries:-1}')
     private int eventHubMaxRetries;
 
     private static String messageSourceValue = "\"messageSource\":\"RESOLVER\"";
@@ -92,7 +92,7 @@ public class AzureEventHubService {
         properties.put("property.connectionfactory.SBCF.username", user);
         properties.put("property.connectionfactory.SBCF.password", password);
 
-        if (eventHubMaxRetries <= 0) {
+        if (eventHubMaxRetries < 0) {
             eventHubMaxRetries = DEFAULT_RETRIES;
         }
         try {
@@ -159,7 +159,7 @@ public class AzureEventHubService {
                 if (retryId == null) {
                     retryId = UUID.randomUUID().toString();
                 }
-                if (tries < eventHubMaxRetries) {
+                if (tries <= eventHubMaxRetries) {
                     log.error("Error sending message (retrying ID: " + retryId + ")", e);
                     tryAgain = true;
                     initConnection();
