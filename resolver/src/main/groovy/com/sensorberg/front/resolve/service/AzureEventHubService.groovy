@@ -33,13 +33,18 @@ public class AzureEventHubService {
     @Value('${queue.EventHub}')
     private String eventHub;
 
+    @Value('${queue.EventHub.maxRetries:-1}')
+    private int eventHubMaxRetries;
+
     private static String messageSourceValue = "\"messageSource\":\"RESOLVER\"";
 
     private static double MAX_MESSAGESIZE = 256D;
 
+    private static int DEFAULT_RETRIES = 3;
+
     private Session sendSession;
-    private MessageProducer messageProducer;
     private Gson gsonEncoder = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create();
+    private MessageProducer sender;
 
     @Async
     public void sendAsyncObjectMessage(Object input) {
@@ -87,6 +92,9 @@ public class AzureEventHubService {
         properties.put("property.connectionfactory.SBCF.username", user);
         properties.put("property.connectionfactory.SBCF.password", password);
 
+        if (eventHubMaxRetries < 0) {
+            eventHubMaxRetries = DEFAULT_RETRIES;
+        }
         try {
             Context context = new InitialContext(properties);
 
@@ -98,7 +106,7 @@ public class AzureEventHubService {
             connection.setExceptionListener(new ExceptionListener() {
                 @Override
                 void onException(JMSException exception) {
-                    messageProducer = null;
+                    sender = null;
                     log.error("ExceptionListener triggered: " + exception.getMessage(), exception);
                     // Try to reinit the connection
                     initConnection();
@@ -106,7 +114,7 @@ public class AzureEventHubService {
             });
 
             sendSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            messageProducer = sendSession.createProducer(queue);
+            sender = sendSession.createProducer(queue);
 
         } catch (NamingException e) {
             log.error("error creating JMS connection.", e);
@@ -127,24 +135,52 @@ public class AzureEventHubService {
     }
 
     private void sendBytesMessage(String messageText) {
-        if (messageProducer == null) {
+        if (sender == null || sendSession == null) {
+            log.warn("sender or session is null. Try to reinit connection.");
             initConnection();
         }
-        try {
-            BytesMessage message = sendSession.createBytesMessage();
-            message.writeBytes(messageText.getBytes("UTF-8"));
-            messageProducer.send(message);
-        } catch (JMSException | UnsupportedEncodingException e) {
-            log.error("Error sending message", e);
-            log.error("Message was not {}", messageText);
-        }  catch (Exception e) {
-            log.error("Totally unexpected Error sending message", e);
-            log.error("Message was not {}", messageText);
+        if (sender == null || sendSession == null) {
+            log.error("Send message to Azure Event Hub failed because sender or session can't be reinitialized.");
+            log.error("Message was not sent: {}", messageText);
+            return;
+        }
+        int retries = 0;
+        boolean tryAgain = true;
+        String retryId;
+        while (tryAgain) {
+            tryAgain = false;
+            try {
+                BytesMessage message = sendSession.createBytesMessage();
+                message.writeBytes(messageText.getBytes("UTF-8"));
+                sender.send(message);
+                if (retryId != null) {
+                    log.info("Finally sending message (retry ID: " + retryId + ") successful (" + retries + ". retry).", e);
+                }
+            } catch (JMSException e) {
+                if (retryId == null) {
+                    retryId = UUID.randomUUID().toString();
+                }
+                if (retries < eventHubMaxRetries) {
+                    log.error("Error sending message (retrying ID: " + retryId + ")", e);
+                    tryAgain = true;
+                    retries++;
+                } else {
+                    log.error("Error sending message because of " + retries + " successive JMSExceptions (ID: " + retryId
+                            + "), giving up.", e);
+                    log.error("Message was not sent: {}", messageText);
+                }
+            } catch (UnsupportedEncodingException e) {
+                log.error("Error sending message because of an unsupported encoding", e);
+                log.error("Message was not sent: {}", messageText);
+            }  catch (Exception e) {
+                log.error("Totally unexpected Error sending message", e);
+                log.error("Message was not sent: {}", messageText);
+            }
         }
     }
 
     public Health getHealth() {
-        return messageProducer != null ? new Health.Builder().up().build() : new Health.Builder().down().build();
+        return sender != null ? new Health.Builder().up().build() : new Health.Builder().down().build();
     }
 
     /**
