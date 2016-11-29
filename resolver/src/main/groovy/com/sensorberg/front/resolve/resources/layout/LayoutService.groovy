@@ -4,7 +4,7 @@ import com.sensorberg.front.resolve.resources.application.domain.Application
 import com.sensorberg.front.resolve.resources.backchannel.BackendSenderService
 import com.sensorberg.front.resolve.resources.index.VersionService
 import com.sensorberg.front.resolve.resources.layout.domain.*
-import com.sensorberg.front.resolve.resources.logs.LogService
+//import com.sensorberg.front.resolve.resources.logs.LogService
 import com.sensorberg.front.resolve.resources.synchronization.SynchronizationService
 import com.sensorberg.front.resolve.service.AzureEventHubService
 import groovy.util.logging.Slf4j
@@ -21,8 +21,8 @@ class LayoutService {
     @Autowired
     LayoutHandler handler
 
-    @Autowired
-    LogService logService
+//    @Autowired
+//    LogService logService
 
     @Autowired
     ApplicationService applicationService
@@ -55,7 +55,7 @@ class LayoutService {
         // Check if we have a request and activities
         if (ctx.hasActivity) {
                 //log to elasticsearch
-                logService.log(ctx)
+//                logService.log(ctx)
 
                 // Message ist to large, split activity Actions/Event in 1000 Steps
                 ctx.split(SPLIT_SIZE).each {
