@@ -48,7 +48,7 @@ class ESLayoutProvider implements LayoutHandler, IsSearchClient {
                 .setQuery(
                 QueryBuilders.matchQuery("applicationIds", applicationId)
         )
-                .addAggregation(AggregationBuilders.terms("uuids").field("proximityUUID"))
+                .addAggregation(AggregationBuilders.terms("uuids").size(0).field("proximityUUID"))
                 .addFields("major", "minor", "actionIds", "proximityUUID", "versionId")
                 .execute().actionGet()
 
