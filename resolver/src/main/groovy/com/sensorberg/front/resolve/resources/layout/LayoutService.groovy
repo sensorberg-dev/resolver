@@ -89,9 +89,7 @@ class LayoutService {
             ctx.syncApplicationRequest = synchronizationService.getById(application.environment)
         }
 
-        return isLayoutForBeacon(ctx.request) ?
-                handler.getForBeacon(ctx) :
-                handler.get(ctx)
+        return handler.get(ctx)
     }
 
     def measureTime = { def closure ->
@@ -106,9 +104,4 @@ class LayoutService {
     private static def isRequestValid(LayoutRequest request) {
         return StringUtils.isNotEmpty(request?.apiKey)
     }
-
-    private static def isLayoutForBeacon = { LayoutRequest request ->
-        StringUtils.trimToNull(request.pid) != null
-    }
-
 }
