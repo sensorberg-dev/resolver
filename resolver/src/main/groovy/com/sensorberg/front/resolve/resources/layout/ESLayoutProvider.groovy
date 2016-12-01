@@ -48,7 +48,7 @@ class ESLayoutProvider implements LayoutHandler, IsSearchClient {
                 .setQuery(
                 QueryBuilders.matchQuery("applicationIds", applicationId)
         )
-                .addAggregation(AggregationBuilders.terms("uuids").field("proximityUUID"))
+                .addAggregation(AggregationBuilders.terms("uuids").size(0).field("proximityUUID"))
                 .addFields("major", "minor", "actionIds", "proximityUUID", "versionId")
                 .execute().actionGet()
 
@@ -72,47 +72,6 @@ class ESLayoutProvider implements LayoutHandler, IsSearchClient {
                             versionId: it.fields.versionId.value
                     )
                 }
-        ]
-    }
-
-    /**
-     * use this layout resolve for large layouts or when you want to limit layout to given geohash
-     * @param applicationId SDK applicationId
-     * @param geohash geohash
-     * @return layout
-     */
-    private def getBeaconsFast(String applicationId, String geohash) {
-        def geoBox = getGeoHashBox(geohash)
-        def results = client.prepareSearch()
-                .setIndices(esConfig.getIndexName())
-                .setTypes(esConfig.INDEX.beacon)
-                .setSize(esConfig.MAX_SEARCH_RESULTS)
-                .setQuery(
-                QueryBuilders.filteredQuery(
-                        new MatchQueryBuilder("applicationIds", applicationId),
-                        new GeoBoundingBoxFilterBuilder("location")
-                                .topLeft(geoBox.topLeft)
-                                .bottomRight(geoBox.bottomRight)
-                                .cache(true)
-                )
-        )
-                .addAggregation(AggregationBuilders.terms("uuids").field("proximityUUID"))
-                .addFields("major", "minor", "actionIds", "proximityUUID", "versionId")
-                .execute().actionGet()
-
-        if (results.hits.totalHits == 0) {
-            return null
-        }
-
-        Terms uuids = results.aggregations.get("uuids")
-        def proximityUUIDs = uuids.buckets.collect {
-            it.key
-        }
-
-
-        return [
-                proximityUUIDs: proximityUUIDs,
-                beacons       : results.hits.hits.collect { it.fields as Beacon }
         ]
     }
 
@@ -160,23 +119,9 @@ class ESLayoutProvider implements LayoutHandler, IsSearchClient {
 
     @Override
     @Monitored
-    LayoutCtx getForBeacon(LayoutCtx ctx) {
-        def request = ctx.request
-        def beacon = getBeacon(request)
-        // do we have geo position? if so use one from beacon, otherwise use provided with request
-        request.geohashComputed = (beacon?.longitude != null && beacon?.longitude != null) ?
-                GeoHashUtils.encode(beacon.latitude, beacon.longitude) :
-                request.geohash
-        return get(ctx)
-    }
-
-    @Override
-    @Monitored
     LayoutCtx get(LayoutCtx ctx) {
         def request = ctx.request
-        def results = (request.geohashComputed != null && request.largeApplication) ?
-                getBeaconsFast(request.apiKey, request.geohashComputed) :
-                getAllBeacons(request.apiKey)
+        def results = getAllBeacons(request.apiKey)
 
         if (results?.beacons?.size() < 1) {
             ctx.response = new LayoutResponse()
